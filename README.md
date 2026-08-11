@@ -6,6 +6,8 @@ Building upon the core concepts of [CSG Toolkit](https://godotengine.org/asset-l
 
 *Read this in other languages: [English](README.md), [简体中文](README_CN.md).*
 
+*📖 Tutorials: [English Tutorial](TUTORIAL_EN.md) | [简体中文教程](TUTORIAL_CN.md)*
+
 ---
 
 ## Architectural & Technical Highlights

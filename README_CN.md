@@ -6,6 +6,8 @@
 
 *其他语言版本：[English](README.md), [简体中文](README_CN.md).*
 
+*📖 教程文档：[简体中文教程](TUTORIAL_CN.md) | [English Tutorial](TUTORIAL_EN.md)*
+
 ---
 
 ## 架构与核心技术亮点
