@@ -10,8 +10,10 @@ const _REF_NOISE = preload("res://addons/csg_blockout/scripts/patterns/noise_pat
 
 const REPEATER_NODE_META = "REPEATED_NODE_META"
 const MAX_INSTANCES = 200
+const REGEN_THROTTLE_MS: int = 150
 
 var _dirty: bool = false
+var _last_regen_ms: int = 0
 var _template_node: Node3D
 @export var template_node: Node3D:
 	get: return _template_node
@@ -213,6 +215,10 @@ func _on_pattern_changed() -> void:
 func _process(_delta: float) -> void:
 	if not Engine.is_editor_hint(): return
 	if _dirty and not _generation_in_progress:
+		var now := Time.get_ticks_msec()
+		if now - _last_regen_ms < REGEN_THROTTLE_MS:
+			return # 保留 _dirty，下帧再试，形成节流
+		_last_regen_ms = now
 		_dirty = false
 		call_deferred("repeat_template")
 

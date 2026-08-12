@@ -3,8 +3,10 @@ class_name CSGSpreader3D extends CSGCombiner3D
 
 const SPREADER_NODE_META = "SPREADER_NODE_META"
 const MAX_INSTANCES = 200
+const REGEN_THROTTLE_MS: int = 150
 
 var _dirty: bool = false
+var _last_regen_ms: int = 0
 var _generation_in_progress := false
 var _template_node: Node3D
 @export var template_node: Node3D:
@@ -103,6 +105,10 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if not Engine.is_editor_hint(): return
 	if _dirty and not _generation_in_progress:
+		var now := Time.get_ticks_msec()
+		if now - _last_regen_ms < REGEN_THROTTLE_MS:
+			return # 保留 _dirty，下帧再试，形成节流
+		_last_regen_ms = now
 		_dirty = false
 		call_deferred("spread_template")
 
