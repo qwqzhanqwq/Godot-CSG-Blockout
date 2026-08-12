@@ -243,7 +243,7 @@ func spread_template() -> void:
 
 	# Spatial Hash Grid for O(1) distance checks
 	var cell_size: float = _min_distance / sqrt(3.0)
-	var spatial_grid: Dictionary = {}
+	var spatial_grid: Dictionary = {} # Vector3i -> Array[Vector3]
 
 	for i in range(budget):
 		var noise_value: float = rng.randf()
@@ -268,16 +268,18 @@ func spread_template() -> void:
 				var grid_y: int = int(floor(test_position.y / cell_size))
 				var grid_z: int = int(floor(test_position.z / cell_size))
 				
-				# Check surrounding 27 cells
+				# Check surrounding 27 cells (each cell holds all positions in it)
 				for dx in range(-1, 2):
 					for dy in range(-1, 2):
 						for dz in range(-1, 2):
-							var check_key: String = str(grid_x + dx) + "_" + str(grid_y + dy) + "_" + str(grid_z + dz)
-							if spatial_grid.has(check_key):
-								var existing_pos: Vector3 = spatial_grid[check_key]
+							var cell_key := Vector3i(grid_x + dx, grid_y + dy, grid_z + dz)
+							if not spatial_grid.has(cell_key):
+								continue
+							for existing_pos: Vector3 in spatial_grid[cell_key]:
 								if test_position.distance_to(existing_pos) < _min_distance:
 									overlap = true
 									break
+							if overlap: break
 						if overlap: break
 					if overlap: break
 			else:
@@ -311,11 +313,16 @@ func spread_template() -> void:
 				
 		placed_positions.append(final_position)
 		if _avoid_overlaps and cell_size > 0.001:
-			var grid_x: int = int(floor(final_position.x / cell_size))
-			var grid_y: int = int(floor(final_position.y / cell_size))
-			var grid_z: int = int(floor(final_position.z / cell_size))
-			var key: String = str(grid_x) + "_" + str(grid_y) + "_" + str(grid_z)
-			spatial_grid[key] = final_position
+			var key := Vector3i(
+				int(floor(final_position.x / cell_size)),
+				int(floor(final_position.y / cell_size)),
+				int(floor(final_position.z / cell_size))
+			)
+			var cell_list: Array[Vector3] = []
+			if spatial_grid.has(key):
+				cell_list = spatial_grid[key]
+			cell_list.append(final_position)
+			spatial_grid[key] = cell_list
 			
 		add_child(instance)
 		instances_created += 1
