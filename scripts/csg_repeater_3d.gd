@@ -265,27 +265,31 @@ func repeat_template() -> void:
 		using_scene = true
 		add_child(template_node)
 
-	# Use pattern estimation for cap check
+	# Use pattern estimation for early-out check
 	var template_size := _get_template_size(template_node)
 	var ctx_cap := {"template_size": template_size, "rng": rng, "position_jitter": _position_jitter}
 	var estimate := 0
 	if pattern:
 		estimate = pattern.get_estimated_count(ctx_cap)
 	if estimate <= 1:
+		estimated_instances = 0
 		if using_scene:
 			remove_child(template_node)
 			template_node.queue_free()
 		_generation_in_progress = false
 		return
-	if estimate > MAX_INSTANCES:
-		push_warning("CSGRepeater3D: Estimated count %s exceeds cap %s. Aborting generation." % [estimate, MAX_INSTANCES])
-		_generation_in_progress = false
-		return
 
 	rng.seed = _random_seed
-	# template_size already computed earlier (template_size variable)
 	var positions = _generate_positions(template_size)
-	estimated_instances = positions.size() - 1
+	# Cap by truncation instead of aborting (preserve generated instances)
+	if positions.size() > MAX_INSTANCES:
+		push_warning("CSGRepeater3D: Generated count %s exceeds cap %s. Truncating." % [positions.size(), MAX_INSTANCES])
+		positions = positions.slice(0, MAX_INSTANCES)
+
+	# Exact count: deduct the origin template only when index 0 is the origin
+	estimated_instances = positions.size()
+	if not positions.is_empty() and positions[0].is_zero_approx():
+		estimated_instances -= 1
 
 	for i in range(positions.size()):
 		var position = positions[i]
@@ -509,7 +513,7 @@ func get_instance_count() -> int:
 	if pattern == null:
 		return 0
 	var ctx := {"template_size": Vector3.ONE, "rng": rng, "position_jitter": _position_jitter}
-	return max(0, pattern.get_estimated_count(ctx) - 1)
+	return mini(pattern.get_estimated_count(ctx), MAX_INSTANCES)
 
 func apply_template() -> void:
 	if get_child_count() == 0:
