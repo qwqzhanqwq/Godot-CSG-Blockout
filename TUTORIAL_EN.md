@@ -40,7 +40,16 @@ The CSG_Blockout plugin is designed to eliminate tedious hierarchy management, p
    - **Method B (Sidebar)**: Use the newly added plugin sidebar on the left side of the 3D viewport. First, click the bottom icons to select a boolean operation (Union, Intersection, or Subtraction), and then click the top primitive shape icons (e.g., cube, sphere) to instantly add a CSG node with that operation.
      
      ![Sidebar Demo](DocsImages/Sidebar.gif)
-4. **Tweak and Adjust**: Drag the handles directly in the viewport to resize and position. The plugin fully supports `Ctrl+Z`, so feel free to experiment without fear of breaking things.
+4. **Procedural Grid Materials & Scale Metrics**:
+   - **World-Aligned Triplanar Grid**: The sidebar includes three procedural grid material presets (**Light Grid**, **Dark Grid**, **Orange Accent Grid**), along with **Unshaded (None)** and **Custom Material** slots. Powered by triplanar projection, the grid pattern stays perfectly aligned in world coordinates without texture stretching, making character scale and spatial distance estimation effortless.
+   - **Apply Material to Selection**: Select one or more `CSGShape3D` nodes in the viewport or scene tree, then click the **"Apply Material to Selected"** button at the bottom of the material group to batch-assign the active preset. Fully integrated with `Ctrl + Z` Undo/Redo.
+     
+     ![Material Presets & Quick Apply Demo](DocsImages/MaterialPresets.gif)
+     
+5. **Smart Contextual Hierarchy Placement**:
+   - Selecting a `CSGCombiner3D` (or `CSGRepeater3D` / `CSGSpreader3D`) automatically places new nodes as **children**.
+   - Selecting a standard `CSGShape3D` (e.g., `CSGBox3D`) automatically places new nodes as **siblings directly following** the selected node, eliminating tedious scene-tree dragging.
+6. **Tweak and Adjust**: Drag the handles directly in the viewport to resize and position. The plugin fully supports `Ctrl+Z`, so feel free to experiment without fear of breaking things.
 
 ---
 

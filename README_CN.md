@@ -29,12 +29,17 @@
 - **`CSGRepeater3D`：** 继承自 `CSGCombiner3D`。支持通过策略模式接入自定义 `CSGPattern` 资源，实现网格阵列（`CSGGridPattern`）、环形阵列（`CSGCircularPattern`）、螺旋阵列（`CSGSpiralPattern`）以及三维噪声采样散布（`CSGNoisePattern`）。
 - **`CSGSpreader3D`：** 继承自 `CSGCombiner3D`。支持基于各种 3D 碰撞体形状（`BoxShape3D`、`SphereShape3D`、`CapsuleShape3D`、`CylinderShape3D`、`HeightMapShape3D`、`ConcavePolygonShape3D`、`ConvexPolygonShape3D` 等）的体域内随机填充与防重叠布置。
 
-### 4. 纯血 GDScript 2.0 与防御性设计
+### 4. 程序化世界对齐网格材质系统 (Procedural World-Aligned Grid)
+- **三平面投影 Shader：** 内置抗锯齿程序化三平面世界对齐网格 Shader（`grid_triplanar.gdshader`），无论几何体如何移动、旋转或缩放，网格纹理均在世界空间严格对齐且不产生拉伸，大幅提升关卡尺度把控效率。
+- **开箱即用预设：** 侧边栏提供灰白网格、深灰网格、橙色高亮网格、白模（无材质）及自定义材质选择器，一键切换并实时同步至 `Shift + A` 轮盘菜单。
+- **批量赋予与撤销：** 支持多选场景中任意 `CSGShape3D` 节点，一键将当前激活材质批量应用至所有选中节点，并完整支持 `Ctrl + Z` / `Ctrl + Y` 撤销重做。
+
+### 5. 纯血 GDScript 2.0 与防御性设计
 - 代码库全线启用静态类型标注（Static Typing）与 `ClassDB` 实例化校验。
 - 完整接入 `EditorUndoRedoManager`，所有节点创建、层级变更与布尔属性修改均支持 `Ctrl + Z` / `Ctrl + Y` 撤销重做。
 - 针对编辑器模式与运行时环境做了严格解耦，防止垃圾节点遗留或编辑态数据污染。
 
-### 5. 原生中英双语国际化 (i18n)
+### 6. 原生中英双语国际化 (i18n)
 - 插件内置 `CsgBlockoutI18n` 翻译引擎，可在界面中自由切换英文 (`en`) 与中文 (`zh_CN`)。
 
 ---
@@ -113,7 +118,8 @@
 #### 左侧工具栏 (CSGSideBlockoutBar)
 - **快捷创建按钮：** 快速放置 `CSGBox3D`、`CSGCylinder3D`、`CSGMesh3D`、`CSGPolygon3D`、`CSGSphere3D`、`CSGTorus3D`。
 - **操作符切换：** 自由切换生成节点的布尔类型：并集（Union）、交集（Intersection）、差集（Subtraction）。
-- **材质指定 (Material Picker)：** 点击材质图标打开资源选择器，可为新创建的 CSG 节点自动应用指定的 `BaseMaterial3D` 或 `ShaderMaterial`，并实时生成微缩预览图。
+- **网格材质预设组：** 一键切换灰白网格、深灰网格、橙色网格、白模（无材质）与自定义材质选择器。
+- **一键应用材质 (Apply to Selected)：** 选中一个或多个 `CSGShape3D` 节点，点击即可将当前激活的材质预设批量赋予选中节点，完美支持 `Ctrl + Z` / `Ctrl + Y` 撤销重做。
 - **智能层级挂载：** 选中 `CSGCombiner3D`（含 Repeater/Spreader）时自动创建为子节点；选中普通 `CSGShape3D`（如 Box/Sphere）时自动创建为同级节点并紧随其后。
 - **自动隐藏：** 当未选中任何 CSG 节点时，左侧栏将平滑淡出隐藏（可在配置中关闭）。
 

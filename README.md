@@ -29,13 +29,18 @@ In scatter placement calculations (`CSGSpreader3D`), traditional nested double-l
 - **`CSGRepeater3D`:** Extends `CSGCombiner3D`. Utilizes a Strategy pattern via custom `CSGPattern` resources (`CSGGridPattern`, `CSGCircularPattern`, `CSGSpiralPattern`, and `CSGNoisePattern`).
 - **`CSGSpreader3D`:** Extends `CSGCombiner3D`. Supports scattering template instances within any 3D collision shape (`BoxShape3D`, `SphereShape3D`, `CapsuleShape3D`, `CylinderShape3D`, `HeightMapShape3D`, `ConcavePolygonShape3D`, `ConvexPolygonShape3D`) with overlap avoidance.
 
-### 4. GDScript 2.0 Static Typing & Defensive Design
+### 4. Procedural World-Aligned Grid & Material Presets
+- **Triplanar Grid Shader:** Procedural world-aligned grid material with anti-aliased sub-pixel lines and checkerboard style. Remains perfectly aligned without texture stretching as objects move, rotate, or scale.
+- **Built-in Presets:** Includes Light Grid, Dark Grid, Orange Accent Grid, Unshaded (None), and Custom Material slots.
+- **Batch Application:** Quickly assign the active material preset to any selected `CSGShape3D` nodes in batch with full Undo/Redo integration.
+
+### 5. GDScript 2.0 Static Typing & Defensive Design
 - Strict static typing and `ClassDB` runtime validation across all codebase scripts.
 - Integrated with `EditorUndoRedoManager` for complete `Ctrl + Z` / `Ctrl + Y` support on node creations, property modifications, and hierarchy shifts.
 - Complete decoupling of editor-only logic from runtime builds, preventing orphan node leaks and scene data corruption.
 
-### 5. Built-in Dual Language Localization (i18n)
-- Powered by `CsgBlockoutI18n`. 
+### 6. Built-in Dual Language Localization (i18n)
+- Powered by `CsgBlockoutI18n`. Supports seamless switching between English (`en`) and Simplified Chinese (`zh_CN`).
 ---
 
 ## Node & Component Specifications
@@ -112,7 +117,8 @@ In scatter placement calculations (`CSGSpreader3D`), traditional nested double-l
 #### Left Sidebar (`CSGSideBlockoutBar`)
 - **Quick Creation Buttons:** One-click instantiation for `CSGBox3D`, `CSGCylinder3D`, `CSGMesh3D`, `CSGPolygon3D`, `CSGSphere3D`, and `CSGTorus3D`.
 - **Boolean Operation Toggle:** Switch between Union, Intersection, and Subtraction modes.
-- **Material Picker:** Click the material preview button to assign `BaseMaterial3D` or `ShaderMaterial` resources with auto-generated thumbnail previews.
+- **Procedural Grid Material Presets:** Instantly switch between Light Grid, Dark Grid, Orange Accent Grid, Unshaded (None), and Custom Material picker.
+- **Apply Material to Selected:** One-click batch application of active material preset to all selected `CSGShape3D` nodes with full Undo/Redo support.
 - **Smart Hierarchy Placement:** Automatically creates new nodes as children when selecting a `CSGCombiner3D` (including Repeater/Spreader), or as siblings directly following the selected node when selecting a standard `CSGShape3D` (e.g. Box, Sphere).
 - **Auto-Hide:** Automatically fades out when no CSG nodes are selected in the editor.
 
