@@ -114,7 +114,7 @@
 - **快捷创建按钮：** 快速放置 `CSGBox3D`、`CSGCylinder3D`、`CSGMesh3D`、`CSGPolygon3D`、`CSGSphere3D`、`CSGTorus3D`。
 - **操作符切换：** 自由切换生成节点的布尔类型：并集（Union）、交集（Intersection）、差集（Subtraction）。
 - **材质指定 (Material Picker)：** 点击材质图标打开资源选择器，可为新创建的 CSG 节点自动应用指定的 `BaseMaterial3D` 或 `ShaderMaterial`，并实时生成微缩预览图。
-- **按键反转层级：** 默认情况下，新节点作为兄弟节点（Sibling）创建；按住 `Alt` 键（可配置）点击创建按钮，可将新节点作为当前选中节点的子节点（Child）创建。
+- **智能层级挂载：** 选中 `CSGCombiner3D`（含 Repeater/Spreader）时自动创建为子节点；选中普通 `CSGShape3D`（如 Box/Sphere）时自动创建为同级节点并紧随其后。
 - **自动隐藏：** 当未选中任何 CSG 节点时，左侧栏将平滑淡出隐藏（可在配置中关闭）。
 
 #### 顶部工具栏 (CSGTopBlockoutBar)
@@ -130,11 +130,10 @@
 
 | 设置项路径 | 数据类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| `addons/csg_blockout/default_behavior` | `int` (Enum) | `Sibling` (0) | 新建 CSG 节点的默认层级行为：`0: Sibling`, `1: Child`。 |
 | `addons/csg_blockout/action_key` | `int` (Key) | `KEY_SHIFT` | 主操作修饰键。 |
-| `addons/csg_blockout/secondary_action_key` | `int` (Key) | `KEY_ALT` | 次级修饰键（按住可反转层级创建逻辑）。 |
 | `addons/csg_blockout/auto_hide` | `bool` | `true` | 是否在取消选择 CSG 节点时自动隐藏左侧面板。 |
 | `addons/csg_blockout/language_override` | `String` | `"zh_CN"` | 语言偏好设置：`"en"` 或 `"zh_CN"`。 |
+| `addons/csg_blockout/material_preset` | `int` (Enum) | `1` (GRID_LIGHT) | 默认材质网格预设。 |
 
 ---
 

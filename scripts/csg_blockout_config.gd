@@ -10,22 +10,17 @@ static func get_config() -> CsgBlockoutConfig:
 		_instance._ensure_settings_exist()
 	return _instance
 # ProjectSettings paths
-const SETTING_DEFAULT_BEHAVIOR = "addons/csg_blockout/default_behavior"
 const SETTING_ACTION_KEY = "addons/csg_blockout/action_key"
-const SETTING_SECONDARY_ACTION_KEY = "addons/csg_blockout/secondary_action_key"
 const SETTING_AUTO_HIDE = "addons/csg_blockout/auto_hide"
 const SETTING_LANGUAGE_OVERRIDE = "addons/csg_blockout/language_override"
 const SETTING_MATERIAL_PRESET = "addons/csg_blockout/material_preset"
 
 # Default values
-const DEFAULT_DEFAULT_BEHAVIOR = CSGBehavior.SIBLING
 const DEFAULT_ACTION_KEY = KEY_SHIFT
-const DEFAULT_SECONDARY_ACTION_KEY = KEY_ALT
 const DEFAULT_AUTO_HIDE = true
 const DEFAULT_LANGUAGE_OVERRIDE = "zh_CN"
 const DEFAULT_MATERIAL_PRESET = MaterialPreset.GRID_LIGHT
 
-enum CSGBehavior { SIBLING, CHILD }
 enum MaterialPreset {
 	NONE = 0,
 	GRID_LIGHT = 1,
@@ -40,20 +35,10 @@ signal custom_material_changed(mat: Material)
 
 # Configurable properties
 
-## Default behavior when adding new CSG nodes
-var default_behavior: CSGBehavior = CSGBehavior.SIBLING:
-	get: return _get_setting(SETTING_DEFAULT_BEHAVIOR, DEFAULT_DEFAULT_BEHAVIOR)
-	set(value): _set_setting(SETTING_DEFAULT_BEHAVIOR, value)
-
-## Key to hold for primary action (e.g., adding CSG nodes)
+## Key to hold for primary action (e.g., opening pie menu)
 var action_key: Key = KEY_SHIFT:
 	get: return _get_setting(SETTING_ACTION_KEY, DEFAULT_ACTION_KEY)
 	set(value): _set_setting(SETTING_ACTION_KEY, value)
-
-## Key to hold for secondary action (e.g., alternative CSG operations)
-var secondary_action_key: Key = KEY_ALT:
-	get: return _get_setting(SETTING_SECONDARY_ACTION_KEY, DEFAULT_SECONDARY_ACTION_KEY)
-	set(value): _set_setting(SETTING_SECONDARY_ACTION_KEY, value)
 
 ## Whether to auto-hide the CSG blockout UI when not in use
 var auto_hide: bool = true:
@@ -79,30 +64,11 @@ var custom_material: Material = null:
 
 func _ensure_settings_exist() -> void:
 	"""Register settings in ProjectSettings if they don't exist."""
-	if not ProjectSettings.has_setting(SETTING_DEFAULT_BEHAVIOR):
-		ProjectSettings.set_setting(SETTING_DEFAULT_BEHAVIOR, DEFAULT_DEFAULT_BEHAVIOR)
-		ProjectSettings.set_initial_value(SETTING_DEFAULT_BEHAVIOR, DEFAULT_DEFAULT_BEHAVIOR)
-		ProjectSettings.add_property_info({
-			"name": SETTING_DEFAULT_BEHAVIOR,
-			"type": TYPE_INT,
-			"hint": PROPERTY_HINT_ENUM,
-			"hint_string": "Sibling,Child"
-		})
-	
 	if not ProjectSettings.has_setting(SETTING_ACTION_KEY):
 		ProjectSettings.set_setting(SETTING_ACTION_KEY, DEFAULT_ACTION_KEY)
 		ProjectSettings.set_initial_value(SETTING_ACTION_KEY, DEFAULT_ACTION_KEY)
 		ProjectSettings.add_property_info({
 			"name": SETTING_ACTION_KEY,
-			"type": TYPE_INT,
-			"hint": PROPERTY_HINT_NONE
-		})
-	
-	if not ProjectSettings.has_setting(SETTING_SECONDARY_ACTION_KEY):
-		ProjectSettings.set_setting(SETTING_SECONDARY_ACTION_KEY, DEFAULT_SECONDARY_ACTION_KEY)
-		ProjectSettings.set_initial_value(SETTING_SECONDARY_ACTION_KEY, DEFAULT_SECONDARY_ACTION_KEY)
-		ProjectSettings.add_property_info({
-			"name": SETTING_SECONDARY_ACTION_KEY,
 			"type": TYPE_INT,
 			"hint": PROPERTY_HINT_NONE
 		})

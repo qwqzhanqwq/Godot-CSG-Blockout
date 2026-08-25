@@ -149,24 +149,64 @@ func _create_csg_node(csg_type: String) -> void:
 	var selected_nodes = selection.get_selected_nodes()
 	
 	var parent: Node = null
+	var insert_index: int = -1
+	var target_pos: Vector3 = Vector3.ZERO
+	
 	if selected_nodes.size() > 0 and selected_nodes[0] is Node3D:
-		parent = selected_nodes[0]
+		var selected_node: Node3D = selected_nodes[0]
+		target_pos = selected_node.global_position
+		if selected_node is CSGCombiner3D:
+			parent = selected_node
+			insert_index = parent.get_child_count()
+		elif selected_node is CSGShape3D:
+			parent = selected_node.get_parent()
+			if parent == null:
+				parent = selected_node
+				insert_index = parent.get_child_count()
+			else:
+				insert_index = selected_node.get_index() + 1
+		else:
+			parent = selected_node
+			insert_index = parent.get_child_count()
 	else:
 		parent = EditorInterface.get_edited_scene_root()
+		if parent:
+			insert_index = parent.get_child_count()
 		
 	if not parent:
 		new_node.free()
 		return
 		
+	var owner_ref = EditorInterface.get_edited_scene_root()
+	if owner_ref == null:
+		owner_ref = parent
+		
 	undo_manager.create_action(CsgBlockoutI18n.t("创建 ") + csg_type)
-	undo_manager.add_do_method(parent, "add_child", new_node, true)
-	undo_manager.add_do_method(new_node, "set_owner", EditorInterface.get_edited_scene_root())
-	undo_manager.add_do_reference(new_node)
-	undo_manager.add_undo_method(parent, "remove_child", new_node)
+	undo_manager.add_undo_reference(new_node)
+	undo_manager.add_do_method(self, "_undoable_create_csg", parent, new_node, owner_ref, target_pos, insert_index)
+	undo_manager.add_do_method(self, "_select_node", new_node)
+	undo_manager.add_undo_method(self, "_undoable_remove_csg", parent, new_node)
 	undo_manager.commit_action()
-	
-	selection.clear()
-	selection.add_node(new_node)
+
+func _undoable_create_csg(parent: Node, node: Node3D, owner_ref: Node, global_pos: Vector3, insert_index: int) -> void:
+	if node.get_parent() != parent:
+		parent.add_child(node, true)
+		if insert_index >= 0 and insert_index < parent.get_child_count():
+			parent.move_child(node, insert_index)
+	node.owner = owner_ref
+	node.global_position = global_pos
+
+func _undoable_remove_csg(parent: Node, node: Node3D) -> void:
+	if is_instance_valid(node) and node.get_parent() == parent:
+		parent.remove_child(node)
+
+func _select_node(node: Node) -> void:
+	if not is_instance_valid(node) or not node.is_inside_tree():
+		return
+	var selection = EditorInterface.get_selection()
+	if selection:
+		selection.clear()
+		selection.add_node(node)
 
 func _exit_tree() -> void:
 	remove_custom_type("CSGRepeater3D")

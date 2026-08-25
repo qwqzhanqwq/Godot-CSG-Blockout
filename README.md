@@ -113,7 +113,7 @@ In scatter placement calculations (`CSGSpreader3D`), traditional nested double-l
 - **Quick Creation Buttons:** One-click instantiation for `CSGBox3D`, `CSGCylinder3D`, `CSGMesh3D`, `CSGPolygon3D`, `CSGSphere3D`, and `CSGTorus3D`.
 - **Boolean Operation Toggle:** Switch between Union, Intersection, and Subtraction modes.
 - **Material Picker:** Click the material preview button to assign `BaseMaterial3D` or `ShaderMaterial` resources with auto-generated thumbnail previews.
-- **Hierarchy Inversion Modifier:** By default, new CSG nodes are created as siblings. Holding `Alt` (configurable) while clicking a shape button creates the new node as a child of the selected node.
+- **Smart Hierarchy Placement:** Automatically creates new nodes as children when selecting a `CSGCombiner3D` (including Repeater/Spreader), or as siblings directly following the selected node when selecting a standard `CSGShape3D` (e.g. Box, Sphere).
 - **Auto-Hide:** Automatically fades out when no CSG nodes are selected in the editor.
 
 #### Top Toolbar (`CSGTopBlockoutBar`)
@@ -129,11 +129,10 @@ Global configuration options are automatically registered in Godot's `ProjectSet
 
 | Setting Path | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `addons/csg_blockout/default_behavior` | `int` (Enum) | `Sibling` (0) | Default hierarchy behavior for new nodes (`0: Sibling`, `1: Child`). |
 | `addons/csg_blockout/action_key` | `int` (Key) | `KEY_SHIFT` | Primary action modifier key. |
-| `addons/csg_blockout/secondary_action_key` | `int` (Key) | `KEY_ALT` | Secondary modifier key (inverts hierarchy placement). |
 | `addons/csg_blockout/auto_hide` | `bool` | `true` | Auto-hides left sidebar when selection is cleared. |
 | `addons/csg_blockout/language_override` | `String` | `"zh_CN"` | Language preference override (`"en"` or `"zh_CN"`). |
+| `addons/csg_blockout/material_preset` | `int` (Enum) | `1` (GRID_LIGHT) | Default material grid preset. |
 
 ---
 

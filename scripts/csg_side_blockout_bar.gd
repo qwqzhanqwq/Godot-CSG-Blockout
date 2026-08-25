@@ -291,27 +291,27 @@ func create_csg(type: Variant) -> void:
 	if config:
 		csg.material = config.get_active_material()
 
-	var owner_ref = selected_node.get_owner()
+	var owner_ref = EditorInterface.get_edited_scene_root()
+	if owner_ref == null:
+		owner_ref = selected_node.get_owner()
 	if owner_ref == null:
 		owner_ref = selected_node
 
-	var parent: Node
-	var add_as_child := false
+	var parent: Node = null
+	var insert_index: int = -1
 
-	var sec_key: Key = config.secondary_action_key if config else KEY_ALT
-	var invert := Input.is_key_pressed(sec_key)
-	var default_behavior = config.default_behavior if config else CsgBlockoutConfig.CSGBehavior.SIBLING
-	if default_behavior == CsgBlockoutConfig.CSGBehavior.SIBLING:
-		add_as_child = invert
+	if selected_node is CSGCombiner3D:
+		parent = selected_node
+		insert_index = parent.get_child_count()
 	else:
-		add_as_child = !invert
-
-	parent = selected_node if add_as_child else selected_node.get_parent()
-	if parent == null:
-		return
+		parent = selected_node.get_parent()
+		if parent == null:
+			parent = selected_node
+			insert_index = parent.get_child_count()
+		else:
+			insert_index = selected_node.get_index() + 1
 
 	if CsgBlockout.undo_manager:
-		var insert_index := parent.get_child_count()
 		CsgBlockout.undo_manager.create_action(CsgBlockoutI18n.t("添加 %s") % csg.get_class())
 		CsgBlockout.undo_manager.add_undo_reference(csg)
 		CsgBlockout.undo_manager.add_do_method(self, "_undoable_add_csg", parent, csg, owner_ref, selected_node.global_position, insert_index)
@@ -321,6 +321,8 @@ func create_csg(type: Variant) -> void:
 		CsgBlockout.undo_manager.commit_action()
 	else:
 		parent.add_child(csg, true)
+		if insert_index >= 0 and insert_index < parent.get_child_count():
+			parent.move_child(csg, insert_index)
 		csg.owner = owner_ref
 		csg.global_position = selected_node.global_position
 		call_deferred("_select_created_csg", csg)
