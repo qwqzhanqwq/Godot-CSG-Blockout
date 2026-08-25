@@ -142,6 +142,8 @@ func _create_csg_node(csg_type: String) -> void:
 		
 	if new_node is CSGShape3D:
 		new_node.operation = default_csg_operation
+		if config:
+			new_node.material = config.get_active_material()
 		
 	var selection = EditorInterface.get_selection()
 	var selected_nodes = selection.get_selected_nodes()

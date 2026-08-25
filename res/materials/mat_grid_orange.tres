@@ -1,0 +1,20 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://addons/csg_blockout/res/shaders/grid_triplanar.gdshader" id="1_shader"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_shader")
+shader_parameter/color_a = Color(0.92, 0.52, 0.15, 1)
+shader_parameter/color_b = Color(0.82, 0.44, 0.1, 1)
+shader_parameter/grid_color = Color(0.2, 0.1, 0.05, 0.9)
+shader_parameter/sub_grid_color = Color(0.4, 0.2, 0.1, 0.4)
+shader_parameter/grid_scale = 1.0
+shader_parameter/sub_grid_divisions = 2.0
+shader_parameter/line_thickness = 0.02
+shader_parameter/sub_line_thickness = 0.01
+shader_parameter/triplanar_sharpness = 8.0
+shader_parameter/use_checker = true
+shader_parameter/world_aligned = true
+shader_parameter/roughness = 0.75
+shader_parameter/metallic = 0.0

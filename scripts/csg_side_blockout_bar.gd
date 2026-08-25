@@ -5,10 +5,6 @@ var config: CsgBlockoutConfig:
 	get: return CsgBlockoutConfig.get_config()
 
 var operation: CSGShape3D.Operation = CSGShape3D.OPERATION_UNION
-var selected_material: BaseMaterial3D = null
-var selected_shader: ShaderMaterial = null
-
-@onready var picker_button: Button = $ScrollContainer/HBoxContainer/Material/MaterialPicker
 
 var button_tweens: Dictionary = {}
 var visibility_tween: Tween
@@ -53,11 +49,6 @@ func _fade_out() -> void:
 	visibility_tween.tween_callback(self.hide)
 
 func _ready() -> void:
-	picker_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	# Connect material picker button if not connected via scene
-	if not picker_button.pressed.is_connected(_on_material_picker_pressed):
-		picker_button.pressed.connect(_on_material_picker_pressed)
-	
 	add_to_group("csg_blockout_ui")
 	CsgBlockoutI18n.translate_node(self)
 	
@@ -69,6 +60,7 @@ func _ready() -> void:
 		_update_language_toggle_text()
 		
 	_setup_button_animations(self)
+	_sync_preset_buttons()
 
 func update_language() -> void:
 	CsgBlockoutI18n.translate_node(self)
@@ -83,9 +75,24 @@ func _update_language_toggle_text() -> void:
 		else:
 			btn.select(1)
 
+func _sync_preset_buttons() -> void:
+	if not config:
+		return
+	var preset = config.material_preset
+	var btn_light: Button = find_child("PresetLight", true, false) as Button
+	var btn_dark: Button = find_child("PresetDark", true, false) as Button
+	var btn_orange: Button = find_child("PresetOrange", true, false) as Button
+	var btn_none: Button = find_child("PresetNone", true, false) as Button
+	var btn_picker: Button = find_child("MaterialPicker", true, false) as Button
+
+	if btn_light: btn_light.button_pressed = (preset == CsgBlockoutConfig.MaterialPreset.GRID_LIGHT)
+	if btn_dark: btn_dark.button_pressed = (preset == CsgBlockoutConfig.MaterialPreset.GRID_DARK)
+	if btn_orange: btn_orange.button_pressed = (preset == CsgBlockoutConfig.MaterialPreset.GRID_ORANGE)
+	if btn_none: btn_none.button_pressed = (preset == CsgBlockoutConfig.MaterialPreset.NONE)
+	if btn_picker: btn_picker.button_pressed = (preset == CsgBlockoutConfig.MaterialPreset.CUSTOM)
+
 func _setup_button_animations(node: Node) -> void:
 	if node is Button and not (node is OptionButton):
-		# Use deferred call to ensure size is initialized
 		call_deferred("_apply_pivot", node)
 		node.mouse_entered.connect(_on_btn_mouse_entered.bind(node))
 		node.mouse_exited.connect(_on_btn_mouse_exited.bind(node))
@@ -158,9 +165,63 @@ func _on_sphere_pressed() -> void:
 func _on_torus_pressed() -> void:
 	create_csg(CSGTorus3D)
 
-# Operation Toggle (accept optional arg for signal variations)
 func _on_operation_pressed(val := 0) -> void:
 	set_operation(val)
+
+func set_operation(val: int) -> void:
+	match val:
+		0: operation = CSGShape3D.OPERATION_UNION
+		1: operation = CSGShape3D.OPERATION_INTERSECTION
+		2: operation = CSGShape3D.OPERATION_SUBTRACTION
+		_: operation = CSGShape3D.OPERATION_UNION
+
+# Material Preset Handlers
+func _on_preset_light_pressed() -> void:
+	if config:
+		config.material_preset = CsgBlockoutConfig.MaterialPreset.GRID_LIGHT
+		config.save_config()
+	_sync_preset_buttons()
+
+func _on_preset_dark_pressed() -> void:
+	if config:
+		config.material_preset = CsgBlockoutConfig.MaterialPreset.GRID_DARK
+		config.save_config()
+	_sync_preset_buttons()
+
+func _on_preset_orange_pressed() -> void:
+	if config:
+		config.material_preset = CsgBlockoutConfig.MaterialPreset.GRID_ORANGE
+		config.save_config()
+	_sync_preset_buttons()
+
+func _on_preset_none_pressed() -> void:
+	if config:
+		config.material_preset = CsgBlockoutConfig.MaterialPreset.NONE
+		config.save_config()
+	_sync_preset_buttons()
+
+func _on_material_picker_pressed() -> void:
+	_request_material()
+
+func _on_apply_to_selected_pressed() -> void:
+	var selection = EditorInterface.get_selection()
+	if not selection:
+		return
+	var selected_nodes = selection.get_selected_nodes().filter(func(n): return n is CSGShape3D)
+	if selected_nodes.is_empty():
+		push_warning(CsgBlockoutI18n.t("请先选择一个 CSGShape3D 节点以添加新 CSG 节点"))
+		return
+	
+	var active_mat: Material = config.get_active_material() if config else null
+	if CsgBlockout.undo_manager:
+		CsgBlockout.undo_manager.create_action(CsgBlockoutI18n.t("应用材质"))
+		for node in selected_nodes:
+			CsgBlockout.undo_manager.add_do_property(node, "material", active_mat)
+			CsgBlockout.undo_manager.add_undo_property(node, "material", (node as CSGShape3D).material)
+		CsgBlockout.undo_manager.commit_action()
+	else:
+		for node in selected_nodes:
+			(node as CSGShape3D).material = active_mat
 
 func _request_material() -> void:
 	var dialog := EditorFileDialog.new()
@@ -181,20 +242,20 @@ func _request_material() -> void:
 		if path.is_empty():
 			return
 		var res = ResourceLoader.load(path)
-		if res == null:
+		if res == null or not (res is Material):
 			return
-		if res is BaseMaterial3D:
-			update_material(res)
-		elif res is ShaderMaterial:
-			update_shader(res)
-		else:
-			return
+		if config:
+			config.custom_material = res as Material
+			config.material_preset = CsgBlockoutConfig.MaterialPreset.CUSTOM
+			config.save_config()
+		_sync_preset_buttons()
 		var previewer = EditorInterface.get_resource_previewer()
 		if previewer:
 			previewer.queue_edited_resource_preview(res, self, "_update_picker_icon", null)
 
 	var on_canceled := func() -> void:
 		cleanup_dialog.call()
+		_sync_preset_buttons()
 
 	dialog.file_selected.connect(on_file_selected)
 	dialog.canceled.connect(on_canceled)
@@ -202,24 +263,10 @@ func _request_material() -> void:
 	get_tree().root.add_child(dialog)
 	dialog.show()
 
-func _update_picker_icon(path, preview, thumbnail, userdata):
-	if preview:
-		picker_button.icon = preview
-
-func set_operation(val: int) -> void:
-	match val:
-		0: operation = CSGShape3D.OPERATION_UNION
-		1: operation = CSGShape3D.OPERATION_INTERSECTION
-		2: operation = CSGShape3D.OPERATION_SUBTRACTION
-		_: operation = CSGShape3D.OPERATION_UNION
-
-func update_material(material: BaseMaterial3D) -> void:
-	selected_material = material
-	selected_shader = null
-
-func update_shader(shader: ShaderMaterial) -> void:
-	selected_material = null
-	selected_shader = shader
+func _update_picker_icon(path: String, preview: Texture2D, thumbnail: Texture2D, userdata: Variant) -> void:
+	var btn_picker: Button = find_child("MaterialPicker", true, false) as Button
+	if preview and btn_picker:
+		btn_picker.icon = preview
 
 func create_csg(type: Variant) -> void:
 	var selection = EditorInterface.get_selection()
@@ -241,10 +288,8 @@ func create_csg(type: Variant) -> void:
 			return
 
 	csg.operation = operation
-	if selected_material:
-		csg.material = selected_material
-	elif selected_shader:
-		csg.material = selected_shader
+	if config:
+		csg.material = config.get_active_material()
 
 	var owner_ref = selected_node.get_owner()
 	if owner_ref == null:
@@ -253,7 +298,6 @@ func create_csg(type: Variant) -> void:
 	var parent: Node
 	var add_as_child := false
 
-	# Behavior inversion now uses secondary_action_key (e.g. Alt) instead of primary action key
 	var sec_key: Key = config.secondary_action_key if config else KEY_ALT
 	var invert := Input.is_key_pressed(sec_key)
 	var default_behavior = config.default_behavior if config else CsgBlockoutConfig.CSGBehavior.SIBLING
@@ -266,7 +310,6 @@ func create_csg(type: Variant) -> void:
 	if parent == null:
 		return
 
-	# Try undo manager path if plugin provided one
 	if CsgBlockout.undo_manager:
 		var insert_index := parent.get_child_count()
 		CsgBlockout.undo_manager.create_action(CsgBlockoutI18n.t("添加 %s") % csg.get_class())
@@ -296,7 +339,6 @@ func _undoable_add_csg(parent: Node, csg: CSGShape3D, owner_ref: Node, global_po
 func _undoable_remove_csg(parent: Node, csg: CSGShape3D) -> void:
 	if is_instance_valid(csg) and csg.get_parent() == parent:
 		parent.remove_child(csg)
-	# Intentionally do NOT free node so redo can re-add it. If you need memory, implement a recreate pattern instead.
 
 func _clear_selection_if(csg: Node) -> void:
 	var selection = EditorInterface.get_selection()
@@ -312,14 +354,10 @@ func _select_created_csg(csg: Node) -> void:
 	selection.clear()
 	selection.add_node(csg)
 
-func _on_material_picker_pressed() -> void:
-	_request_material()
-
 func _on_language_toggle_item_selected(index: int) -> void:
 	if config:
 		match index:
 			0: config.language_override = "en"
 			1: config.language_override = "zh_CN"
 		config.save_config()
-		
 		get_tree().call_group("csg_blockout_ui", "update_language")

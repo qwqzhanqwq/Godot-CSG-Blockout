@@ -28,7 +28,15 @@ const EN = {
 	"阶梯": "Stairs",
 	"门框": "Door Frame",
 	"更改 CSG 操作": "Change CSG Operation",
-	"创建 ": "Create "
+	"创建 ": "Create ",
+	"灰白网格": "Light Grid",
+	"深灰网格": "Dark Grid",
+	"橙色网格": "Orange Grid",
+	"无材质(白模)": "No Material (White)",
+	"自定义材质": "Custom Material",
+	"应用材质到选中节点": "Apply Material to Selected",
+	"应用材质": "Apply Material",
+	"清除材质": "Clear Material"
 }
 
 static func get_locale() -> String:
