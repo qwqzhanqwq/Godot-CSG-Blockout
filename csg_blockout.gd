@@ -95,19 +95,22 @@ func _open_pie_menu() -> void:
 	pie_menu.action_triggered.connect(_on_pie_menu_action_triggered)
 	pie_menu.close_requested.connect(_close_pie_menu)
 	
+	var ed_scale: float = EditorInterface.get_editor_scale() if Engine.is_editor_hint() else 1.0
+	pie_menu.apply_editor_scale(ed_scale)
+	
 	var base_control: Control = EditorInterface.get_base_control()
 	base_control.add_child(pie_menu)
 	
 	var mouse_pos: Vector2 = base_control.get_local_mouse_position()
 	
 	# Clamp position
-	var margin: float = pie_menu.outer_radius + 10.0
+	var margin: float = pie_menu.outer_radius + 10.0 * ed_scale
 	var rect_size: Vector2 = base_control.get_rect().size
 	mouse_pos.x = clampf(mouse_pos.x, margin, rect_size.x - margin)
 	mouse_pos.y = clampf(mouse_pos.y, margin, rect_size.y - margin)
 	
 	pie_menu.position = mouse_pos
-	pie_menu.setup(_get_pie_menu_items())
+	pie_menu.setup(_get_pie_menu_items(), ed_scale)
 	pie_menu_tab_pressed_time = Time.get_ticks_msec()
 
 func _close_pie_menu() -> void:

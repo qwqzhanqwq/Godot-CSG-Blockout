@@ -6,6 +6,16 @@ var config: CsgBlockoutConfig:
 
 var operation: CSGShape3D.Operation = CSGShape3D.OPERATION_UNION
 
+const BASE_BAR_MIN_WIDTH: float = 52.0
+const BASE_BTN_SIZE: Vector2 = Vector2(42.0, 42.0)
+const BASE_MATERIAL_BTN_SIZE: Vector2 = Vector2(42.0, 36.0)
+const BASE_ICON_MAX_WIDTH: int = 24
+const BASE_MATERIAL_ICON_MAX_WIDTH: int = 22
+const BASE_CONTAINER_SEPARATION: int = 12
+const BASE_MARGIN_VERTICAL: int = 8
+const BASE_LANG_BTN_SIZE: Vector2 = Vector2(36.0, 22.0)
+const BASE_LANG_FONT_SIZE: int = 11
+
 var button_tweens: Dictionary = {}
 var visibility_tween: Tween
 
@@ -48,8 +58,49 @@ func _fade_out() -> void:
 	visibility_tween.tween_property(self, "modulate:a", 0.0, 0.15)
 	visibility_tween.tween_callback(self.hide)
 
+func _apply_editor_scale() -> void:
+	var ed_scale: float = 1.0
+	if Engine.is_editor_hint():
+		ed_scale = EditorInterface.get_editor_scale()
+	ed_scale = maxf(ed_scale, 0.1)
+	
+	custom_minimum_size.x = round(BASE_BAR_MIN_WIDTH * ed_scale)
+	add_theme_constant_override("margin_top", int(round(BASE_MARGIN_VERTICAL * ed_scale)))
+	add_theme_constant_override("margin_bottom", int(round(BASE_MARGIN_VERTICAL * ed_scale)))
+	
+	var hbox: Container = find_child("HBoxContainer", true, false) as Container
+	if hbox:
+		hbox.add_theme_constant_override("separation", int(round(BASE_CONTAINER_SEPARATION * ed_scale)))
+		
+	var csg_box: Container = find_child("CSG", true, false) as Container
+	if csg_box:
+		for child in csg_box.get_children():
+			if child is Button:
+				child.custom_minimum_size = BASE_BTN_SIZE * ed_scale
+				child.add_theme_constant_override("icon_max_width", int(round(BASE_ICON_MAX_WIDTH * ed_scale)))
+
+	var op_box: Container = find_child("Operation", true, false) as Container
+	if op_box:
+		for child in op_box.get_children():
+			if child is Button:
+				child.custom_minimum_size = BASE_BTN_SIZE * ed_scale
+				child.add_theme_constant_override("icon_max_width", int(round(BASE_ICON_MAX_WIDTH * ed_scale)))
+
+	var mat_box: Container = find_child("Material", true, false) as Container
+	if mat_box:
+		for child in mat_box.get_children():
+			if child is Button:
+				child.custom_minimum_size = BASE_MATERIAL_BTN_SIZE * ed_scale
+				child.add_theme_constant_override("icon_max_width", int(round(BASE_MATERIAL_ICON_MAX_WIDTH * ed_scale)))
+				
+	var lang_btn: OptionButton = find_child("LanguageToggle", true, false) as OptionButton
+	if lang_btn:
+		lang_btn.custom_minimum_size = BASE_LANG_BTN_SIZE * ed_scale
+		lang_btn.add_theme_font_size_override("font_size", int(round(BASE_LANG_FONT_SIZE * ed_scale)))
+
 func _ready() -> void:
 	add_to_group("csg_blockout_ui")
+	_apply_editor_scale()
 	CsgBlockoutI18n.translate_node(self)
 	
 	var lang_btn = find_child("LanguageToggle", true, false)
@@ -94,6 +145,8 @@ func _sync_preset_buttons() -> void:
 func _setup_button_animations(node: Node) -> void:
 	if node is Button and not (node is OptionButton):
 		call_deferred("_apply_pivot", node)
+		if not node.resized.is_connected(_apply_pivot.bind(node)):
+			node.resized.connect(_apply_pivot.bind(node))
 		node.mouse_entered.connect(_on_btn_mouse_entered.bind(node))
 		node.mouse_exited.connect(_on_btn_mouse_exited.bind(node))
 		node.button_down.connect(_on_btn_down.bind(node))
@@ -230,7 +283,8 @@ func _request_material() -> void:
 	dialog.filters = ["*.tres, *.material, *.res"]
 	dialog.file_mode = EditorFileDialog.FILE_MODE_OPEN_FILE
 	if EditorInterface.get_base_control():
-		dialog.position = ((EditorInterface.get_base_control().size / 2) as Vector2i) - dialog.size
+		var ed_scale: float = EditorInterface.get_editor_scale() if Engine.is_editor_hint() else 1.0
+		dialog.popup_centered_clamped(Vector2(680, 480) * ed_scale)
 
 	var cleanup_dialog := func() -> void:
 		if is_instance_valid(dialog) and dialog.get_parent():

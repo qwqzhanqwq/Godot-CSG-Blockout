@@ -4,10 +4,16 @@ class_name CsgPieMenu extends Control
 signal action_triggered(item: Dictionary)
 signal close_requested()
 
+const BASE_INNER_RADIUS: float = 30.0
+const BASE_OUTER_RADIUS: float = 120.0
+const BASE_LINE_WIDTH: float = 2.0
+const BASE_FONT_SIZE: int = 14
+
+var editor_scale: float = 1.0
 var items: Array = [] # Array[Dictionary]
 var menu_stack: Array = [] # Array[Array]
-var inner_radius: float = 30.0
-var outer_radius: float = 120.0
+var inner_radius: float = BASE_INNER_RADIUS
+var outer_radius: float = BASE_OUTER_RADIUS
 var active_item_index: int = -1
 var is_in_deadzone: bool = true
 
@@ -16,8 +22,8 @@ var bg_color: Color = Color(0.1, 0.1, 0.15, 0.85)
 var hover_color: Color = Color(0.3, 0.5, 0.8, 0.95)
 var text_color: Color = Color.WHITE
 var line_color: Color = Color(0.2, 0.2, 0.2, 0.8)
-var line_width: float = 2.0
-var font_size: int = 14
+var line_width: float = BASE_LINE_WIDTH
+var font_size: int = BASE_FONT_SIZE
 
 # Animation state
 var anim_progress: float = 0.0
@@ -28,7 +34,17 @@ func _ready() -> void:
 	set_process(true)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-func setup(menu_items: Array) -> void:
+func apply_editor_scale(scale: float) -> void:
+	editor_scale = maxf(scale, 0.1)
+	inner_radius = BASE_INNER_RADIUS * editor_scale
+	outer_radius = BASE_OUTER_RADIUS * editor_scale
+	line_width = BASE_LINE_WIDTH * editor_scale
+	font_size = int(round(BASE_FONT_SIZE * editor_scale))
+	queue_redraw()
+
+func setup(menu_items: Array, p_scale: float = -1.0) -> void:
+	if p_scale > 0.0:
+		apply_editor_scale(p_scale)
 	items = menu_items
 	menu_stack.clear()
 	active_item_index = -1
@@ -93,7 +109,7 @@ func _draw() -> void:
 	var font: Font = get_theme_font("font", "Label")
 	
 	# Draw shadow
-	draw_circle(Vector2.ZERO, current_outer + 2.0, Color(0, 0, 0, 0.3 * anim_progress))
+	draw_circle(Vector2.ZERO, current_outer + 2.0 * editor_scale, Color(0, 0, 0, 0.3 * anim_progress))
 	
 	for i in range(num_items):
 		var start_angle: float = i * sector_angle - sector_angle / 2.0
@@ -134,7 +150,7 @@ func _draw() -> void:
 	if not menu_stack.is_empty():
 		var back_color: Color = hover_color if is_in_deadzone else Color(0.2, 0.2, 0.2, 0.8)
 		back_color.a *= anim_progress
-		draw_circle(Vector2.ZERO, current_inner - 2.0, back_color)
+		draw_circle(Vector2.ZERO, current_inner - 2.0 * editor_scale, back_color)
 		var back_text: String = "<"
 		var bt_size: Vector2 = font.get_string_size(back_text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
 		var bt_pos: Vector2 = - bt_size / 2.0
