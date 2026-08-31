@@ -63,7 +63,7 @@ func _handles(object: Object) -> bool:
 	return object is Node3D
 
 func _forward_3d_gui_input(viewport_camera: Camera3D, event: InputEvent) -> int:
-	if event is InputEventKey and event.keycode == KEY_A and event.shift_pressed and not event.echo:
+	if event is InputEventKey and event.keycode == KEY_A and not event.echo and _is_action_key_held(event):
 		if event.pressed:
 			if not is_instance_valid(pie_menu):
 				_open_pie_menu()
@@ -89,6 +89,13 @@ func _forward_3d_gui_input(viewport_camera: Camera3D, event: InputEvent) -> int:
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 			
 	return EditorPlugin.AFTER_GUI_INPUT_PASS
+
+func _is_action_key_held(event: InputEventWithModifiers) -> bool:
+	var key: Key = config.action_key if config else KEY_SHIFT
+	return (key == KEY_SHIFT and event.shift_pressed) \
+		or (key == KEY_CTRL and event.ctrl_pressed) \
+		or (key == KEY_ALT and event.alt_pressed) \
+		or (key == KEY_META and event.meta_pressed)
 
 func _open_pie_menu() -> void:
 	pie_menu = CsgPieMenu.new()

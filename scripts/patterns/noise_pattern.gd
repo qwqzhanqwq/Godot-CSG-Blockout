@@ -29,7 +29,7 @@ extends CSGPattern
 ##
 @export_range(1, 8) var fractal_octaves: int = 3
 
-## 
+## When enabled, sampling spacing never drops below the template AABB size (prevents overlap)
 @export var use_template_size: bool = false
 
 var noise: FastNoiseLite
@@ -80,6 +80,16 @@ func _generate(ctx: Dictionary) -> Array:
 		effective_bounds.z / max(1, sample_count.z)
 	)
 	
+	# When enabled, spacing never drops below the template AABB size (prevents overlap),
+	# mirroring grid_pattern's use_template_size semantics. Bounds are re-centered afterwards.
+	if use_template_size and template_size != Vector3.ZERO:
+		step = Vector3(
+			maxf(step.x, template_size.x),
+			maxf(step.y, template_size.y),
+			maxf(step.z, template_size.z)
+		)
+		effective_bounds = step * Vector3(sample_count)
+	
 	# Start from negative half to center the pattern around origin
 	var start_pos = -effective_bounds * 0.5
 	
@@ -99,10 +109,6 @@ func _generate(ctx: Dictionary) -> Array:
 				# Only place instance if noise exceeds threshold
 				if noise_value >= noise_threshold:
 					var final_pos = sample_pos
-					
-					# Apply template size offset if enabled
-					if use_template_size:
-						final_pos += template_size * Vector3(x, y, z)
 					
 					# Apply jitter
 					if jitter > 0.0:

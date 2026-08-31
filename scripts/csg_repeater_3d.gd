@@ -190,7 +190,9 @@ var _pattern: CSGPattern
 			push_warning("Assigned pattern is not a CSGPattern-derived resource; ignoring.")
 			return
 		# Prevent assigning the abstract base directly (must use subclass)
-		if value != null and value.get_class() == "CSGPattern":
+		# NOTE: get_class() returns the native class ("Resource"), not the script class_name,
+		# so the check must go through the attached script's global name.
+		if value != null and _is_base_pattern_script(value.get_script()):
 			push_warning("Cannot assign base CSGPattern directly. Please use a concrete pattern (Grid, Circular, Spiral...).")
 			return
 		# Disconnect old
@@ -200,6 +202,9 @@ var _pattern: CSGPattern
 		if _pattern and not _pattern.is_connected("changed", Callable(self, "_on_pattern_changed")):
 			_pattern.connect("changed", Callable(self, "_on_pattern_changed"))
 		_mark_dirty()
+
+func _is_base_pattern_script(script: Script) -> bool:
+	return script != null and script.get_global_name() == "CSGPattern"
 
 func _ready() -> void:
 	rng = RandomNumberGenerator.new()

@@ -70,7 +70,8 @@ func _ensure_settings_exist() -> void:
 		ProjectSettings.add_property_info({
 			"name": SETTING_ACTION_KEY,
 			"type": TYPE_INT,
-			"hint": PROPERTY_HINT_NONE
+			"hint": PROPERTY_HINT_ENUM,
+			"hint_string": "Shift:%d,Ctrl:%d,Alt:%d,Meta:%d" % [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META]
 		})
 	
 	if not ProjectSettings.has_setting(SETTING_AUTO_HIDE):
