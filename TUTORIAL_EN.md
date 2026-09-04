@@ -1,6 +1,6 @@
 # CSG Blockout: Rapid Prototyping & Advanced Workflow Tutorial
 
-*其他语言版本：[简体中文](TUTORIAL_CN.md).*
+*Read this in other languages: [简体中文](TUTORIAL_CN.md) | [Back to Main Docs](README.md) | [Architecture & Internals](ARCHITECTURE.md)*
 
 ## Table of Contents
 - [1. Basics: Understanding CSG](#1-basics-understanding-csg)
@@ -92,4 +92,4 @@ When a specific room or architectural block is "finalized and won't be changed,"
 5. **Delete Original CSG**: **Delete** the original `CSGCombiner3D` node and all its children. At this point, the heavy boolean calculations are completely unloaded, leaving you with an ultra-performant static game asset with perfect collisions!
 
 > [!WARNING]
-> ⚠️**Note**: Before deleting the CSG nodes, it is highly recommended to save the original CSG structure as a separate scene file (e.g., `CSG_Source.tscn`) or keep a backup, so you can easily modify the level structure later.
+> **Note**: Before deleting the CSG nodes, it is highly recommended to save the original CSG structure as a separate scene file (e.g., `CSG_Source.tscn`) or keep a backup, so you can easily modify the level structure later.

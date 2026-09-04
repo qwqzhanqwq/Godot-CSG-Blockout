@@ -8,171 +8,97 @@
   <p>
     <a href="README.md"><img src="https://img.shields.io/badge/Docs-English-blue?style=flat-square" alt="Docs English" /></a>
     <a href="README_CN.md"><img src="https://img.shields.io/badge/%E6%96%87%E6%A1%A3-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-blue?style=flat-square" alt="文档 简体中文" /></a>
-    <a href="TUTORIAL_EN.md"><img src="https://img.shields.io/badge/Tutorial-English-orange?style=flat-square" alt="Tutorial English" /></a>
     <a href="TUTORIAL_CN.md"><img src="https://img.shields.io/badge/%E6%95%99%E7%A8%8B-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-orange?style=flat-square" alt="教程 简体中文" /></a>
+    <a href="ARCHITECTURE_CN.md"><img src="https://img.shields.io/badge/%E6%9E%B6%E6%9E%84-%E6%8A%80%E6%9C%AF%E5%86%85%E5%B9%95-purple?style=flat-square" alt="架构 技术内幕" /></a>
   </p>
 
   <p>
     <a href="https://godotengine.org"><img src="https://img.shields.io/badge/Godot-4.7%2B-478cbf?style=flat-square&logo=godotengine&logoColor=white" alt="Godot 引擎" /></a>
+    <a href="https://store.godotengine.org/asset/qwqzhanqwq/csg-blockout/"><img src="https://img.shields.io/badge/AssetLib-CSG__Blockout-blueviolet?style=flat-square" alt="Godot AssetLib" /></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="开源协议: MIT" /></a>
   </p>
 
   <p>
-    <strong>专为 Godot 4.7 打造的高性能、现代化的 3D 关卡白盒（Blockout）原型设计插件。</strong>
+    <strong>专为 Godot 4.7 打造的高性能、现代化的 3D 关卡白盒（Blockout）与快速原型设计插件。</strong>
   </p>
 </div>
 
 ---
 
-## 架构与核心技术亮点
+## 安装指南
 
-### 1. 空间哈希网格算法 (Spatial Hash Grid)
-在散布计算（`CSGSpreader3D`）中，传统的双重循环距离检测会导致 O(N^2) 的时间复杂度，当物体数量较多时会引发编辑器卡顿甚至未响应。
-`CSG_Blockout` 采用了 **3D 空间哈希网格算法**：
-- 根据最小安全距离 `min_distance` 将三维空间划分为连续的立方体网格单元（Cell Size = `min_distance / sqrt(3)`）。
-- 每次放置新节点时，仅检索并比较目标位置所在单元格及相邻 27 个网格内的已存在节点。
-- 将重叠检测的时间复杂度降低至 **O(1)**，在包含数百个组合 CSG 几何体的复杂关卡中依然可以做到实时计算与瞬时响应。
+### 途径 1：Godot AssetLib 官方资产库（推荐）
+1. 在 Godot 4.7 编辑器顶部点击 **AssetLib (资产库)** 选项卡。
+2. 搜索 `CSG Blockout`，点击下载并安装到项目中。
+3. 也可通过网页版资产库直达：[Godot AssetLib - CSG_Blockout](https://store.godotengine.org/asset/qwqzhanqwq/csg-blockout/)。
 
-### 2. 交互式 3D 轮盘菜单 (3D Pie Menu)
-- **快捷键调用：** 在 3D 编辑器视口中按下 `Shift + A` 即可在鼠标指针所在位置呼出矢量绘制的 3D 轮盘菜单。
-- **层级导航：** 外围分为并集（Union）、交集（Intersection）、差集（Subtraction）三大布尔操作分支，进入分支后可快速选取基础 CSG 形状（立方体、圆柱体、网格、多边形、球体、圆环）。
-- **智能节点操作：** 若当前已选中某个 `CSGShape3D` 节点，在轮盘菜单中选择布尔运算会自动更新该节点的 `operation` 属性；若未选择或在子菜单中点击形状，则自动创建并配置对应布尔操作的新 CSG 节点。
-- **手势与死区控制：** 内置中央死区（Deadzone），点击死区或鼠标右键可返回上一级菜单或关闭轮盘。
+### 途径 2：GitHub Releases 发布包
+1. 前往项目的 [Releases 页面](https://github.com/qwqzhanqwq/Godot-CSG-Blockout/releases) 下载最新的 `.zip` 归档文件。
+2. 解压后将 `addons/csg_blockout` 文件夹复制到你的 Godot 项目根目录下的 `addons/` 目录中。
 
-### 3. 高度可扩展的阵列与散布节点系统
-- **`CSGRepeater3D`：** 继承自 `CSGCombiner3D`。支持通过策略模式接入自定义 `CSGPattern` 资源，实现网格阵列（`CSGGridPattern`）、环形阵列（`CSGCircularPattern`）、螺旋阵列（`CSGSpiralPattern`）以及三维噪声采样散布（`CSGNoisePattern`）。
-- **`CSGSpreader3D`：** 继承自 `CSGCombiner3D`。支持基于各种 3D 碰撞体形状（`BoxShape3D`、`SphereShape3D`、`CapsuleShape3D`、`CylinderShape3D`、`HeightMapShape3D`、`ConcavePolygonShape3D`、`ConvexPolygonShape3D` 等）的体域内随机填充与防重叠布置。
+### 途径 3：Git 源码克隆
+在你的 Godot 项目根目录下执行以下命令：
+```bash
+git clone https://github.com/qwqzhanqwq/Godot-CSG-Blockout.git addons/csg_blockout
+```
 
-### 4. 程序化世界对齐网格材质系统 (Procedural World-Aligned Grid)
-- **三平面投影 Shader：** 内置抗锯齿程序化三平面世界对齐网格 Shader（`grid_triplanar.gdshader`），无论几何体如何移动、旋转或缩放，网格纹理均在世界空间严格对齐且不产生拉伸，大幅提升关卡尺度把控效率。
-- **开箱即用预设：** 侧边栏提供灰白网格、深灰网格、橙色高亮网格、白模（无材质）及自定义材质选择器，一键切换并实时同步至 `Shift + A` 轮盘菜单。
-- **批量赋予与撤销：** 支持多选场景中任意 `CSGShape3D` 节点，一键将当前激活材质批量应用至所有选中节点，并完整支持 `Ctrl + Z` / `Ctrl + Y` 撤销重做。
-
-### 5. 纯血 GDScript 2.0 与防御性设计
-- 代码库全线启用静态类型标注（Static Typing）与 `ClassDB` 实例化校验。
-- 完整接入 `EditorUndoRedoManager`，所有节点创建、层级变更与布尔属性修改均支持 `Ctrl + Z` / `Ctrl + Y` 撤销重做。
-- 针对编辑器模式与运行时环境做了严格解耦，防止垃圾节点遗留或编辑态数据污染。
-
-### 6. 原生中英双语国际化 (i18n)
-- 插件内置 `CsgBlockoutI18n` 翻译引擎，可在界面中自由切换英文 (`en`) 与中文 (`zh_CN`)。
+### 启用插件
+打开 Godot 编辑器，依次点击 **项目 (Project) -> 项目设置 (Project Settings) -> 插件 (Plugins)**，找到 **CSG_Blockout** 并勾选 **启用 (Enable)**。
 
 ---
 
-## 节点与组件详细说明
+## 快速上手
 
-### 1. CSGRepeater3D (阵列重复器)
+1. **呼出 3D 轮盘**：在 3D 视口中按下快捷键 `Shift + A`，在光标所在位置唤出矢量轮盘菜单（Pie Menu），顺着手势快速创建基础 CSG 形状或切换布尔操作（并集 / 交集 / 差集）。
+2. **使用视口侧边栏**：视口左侧边栏提供立方体、球体、圆柱体等一键创建按钮；选中 `CSGCombiner3D` 时自动挂载为子节点，选中独立形状时自动作为同级兄弟节点插入。
+3. **程序化世界对齐网格**：侧边栏内置灰白网格、深灰网格、橙色高亮网格等材质通道，支持多选节点后一键批量赋予，物体随意缩放旋转均不拉伸纹理。
+4. **一键烘焙与导出**：选中 `CSGRepeater3D` 或 `CSGSpreader3D` 时，顶部工具栏会出现专属按钮，点击 **烘焙 (Bake)** 即可将其固化为常规场景节点。
 
-`CSGRepeater3D` 用于按照特定几何规律重复生成模板几何体。
+> 完整图文搭建教程与性能优化最佳实践，请查阅 [快速上手与高级工作流教程 (TUTORIAL_CN.md)](TUTORIAL_CN.md)。
 
-#### 核心属性表
-| 属性名 | 类型 | 说明 |
+---
+
+## 核心功能特性
+
+- **矢量 3D 轮盘菜单 (3D Pie Menu)**：在 3D 视口通过 `Shift + A` 顺发呼出，多层级布尔运算与几何形状无缝联动，支持中心死区回退与全流程 Undo/Redo。
+- **智能工作流侧边栏**：集成 6 种标准 CSG 几何体快捷创建、3 种布尔操作即时切换，无 CSG 节点选中时自动隐藏，保持视口清爽。
+- **程序化三平面世界网格 Shader**：摒弃传统 UV 依赖，基于世界空间坐标投影，严格保持真实世界比例尺寸（1m x 1m），内置抗锯齿算法。
+- **开箱即用材质预设与批量赋予**：预置浅色、深色、重点强调等度量材质，支持视口中框选多个 CSG 节点一键应用。
+- **参数化阵列生成器 (CSGRepeater3D)**：采用策略模式设计，支持网格阵列、环形阵列、螺旋阵列与 3D 噪声体域采样，支持旋转与缩放随机化。
+- **物理体积防重叠散布系统 (CSGSpreader3D)**：支持以任意 Godot `Shape3D` 为空间边界进行无重叠填充，采用 $O(1)$ 空间哈希网格算法，彻底避免编辑态卡死。
+- **工程级强类型与双语支持**：全线基于 GDScript 2.0 静态强类型开发，无缝对接 `EditorUndoRedoManager`，内置中英文 (i18n) 界面无缝切换。
+
+---
+
+## 与 CSG Toolkit 的关系与全面演进
+
+本项目灵感源自 **LuckyTepot** 开发的优秀开源插件 [CSG Toolkit](https://godotengine.org/asset-library/asset/3057)。原版插件验证了在 Godot 视口内集成快速 CSG 工具栏的卓越体验。
+
+为了满足现代化高精度关卡设计与 Godot 4.7 架构标准，本项目由 [qwqzhanqwq](https://github.com/qwqzhanqwq) 对其进行了**彻底推倒式的架构重写与全方位扩展**：
+
+| 维度 | 原版 CSG Toolkit | CSG_Blockout (本项目) |
 | :--- | :--- | :--- |
-| `template_node` | `Node3D` | 场景内指定的模板节点引用。 |
-| `template_node_scene` | `PackedScene` | 预制体资源文件模板（当未指定场景节点时优先使用）。 |
-| `hide_template` | `bool` | 是否在生成阵列时隐藏原始模板节点（默认开启）。 |
-| `pattern` | `CSGPattern` | 阵列生成模式资源（网格、环形、螺旋、噪声等）。 |
-| `position_jitter` | `float` | 位置随机偏移抖动幅度。 |
-| `random_seed` | `int` | 随机生成种子。 |
-| `estimated_instances` | `int` | (只读) 当前计算出的预估生成实例数量。 |
-
-#### 随机变异控制 (Variation Options)
-- **旋转随机化 (`randomize_rotation`)：**
-  - 可独立开启 X / Y / Z 轴的随机旋转 (`randomize_rot_x/y/z`)。
-  - 支持指定各轴的旋转方差角度范围 (`rotation_variance_x/y/z_deg`)，为 0 时表示 0~360 度全随机。
-- **缩放随机化 (`randomize_scale`)：**
-  - 支持全局缩放方差 (`scale_variance`) 及分轴缩放控制 (`randomize_scale_x/y/z` 与 `scale_variance_x/y/z`)。
-
-#### 支持的模式资源 (CSGPattern Subclasses)
-1. **`CSGGridPattern` (网格模式)：**
-   - `count_x`, `count_y`, `count_z`：各方向重复次数。
-   - `spacing`：三维间距向量。
-   - `use_template_size`：自动叠加模板节点的 AABB 包围盒尺寸。
-2. **`CSGCircularPattern` (环形模式)：**
-   - `radius`：分布半径。
-   - `points`：单层生成点数。
-   - `layers`：垂直层数。
-   - `layer_height`, `layer_spacing`：层高与额外层间距。
-3. **`CSGSpiralPattern` (螺旋模式)：**
-   - `turns`：圈数。
-   - `start_radius`, `end_radius`：起始与终止半径。
-   - `total_height`：螺旋总高度。
-   - `use_radius_curve`, `radius_curve`：支持通过 `Curve` 资源精确控制半径变化曲线。
-4. **`CSGNoisePattern` (噪声模式)：**
-   - 基于 `FastNoiseLite` 在 3D 体域内采样。
-   - 包含 `bounds`, `sample_density`, `noise_threshold`, `noise_type` (Simplex, Perlin, Cellular 等), `fractal_type` 等丰富参数。
+| **引擎架构** | 面向早期 Godot 4.x，弱类型脚本 | **深度适配 Godot 4.7+**，全线 GDScript 2.0 强类型标注与 ClassDB 校验 |
+| **核心交互** | 仅依赖视口固定侧边栏 | **3D 视口矢量轮盘 (Shift+A Pie Menu) + 智能侧边栏** 双工作流 |
+| **程序化生成** | 仅支持基础静态图元放置 | **参数化阵列 (Repeater) + 碰撞体体积散布 (Spreader)** |
+| **散布避障算法** | 无避障或朴素 $O(N^2)$ 遍历循环 | **自研 3D 空间哈希网格算法 ($O(1)$ 复杂度)**，数百实例实时生成不卡顿 |
+| **材质系统** | 依赖基础内置着色器 | **程序化世界对齐三平面网格 Shader** + 5 组预设 + 一键批量赋予 |
+| **工程健壮性** | 基础编辑态支持 | **全流程原子级 EditorUndoRedoManager 接入**，严格的编辑器/运行时环境隔离 |
+| **国际化** | 仅支持单语言 | **原生双语支持**（简体中文 / English），自动跟随编辑器语言偏好 |
 
 ---
 
-### 2. CSGSpreader3D (体域散布器)
+## 文档导航
 
-`CSGSpreader3D` 用于在指定的 `Shape3D` 空间区域内随机散射几何体实例，并进行碰撞避障。
-
-#### 核心属性表
-| 属性名 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `template_node` | `Node3D` | 散布目标模板节点。 |
-| `spread_area_3d` | `Shape3D` | 散布区域形状（支持 Box, Sphere, Capsule, Cylinder, HeightMap, Mesh 凸包/凹包等）。 |
-| `max_count` | `int` | 最大生成实例上限 (上限为安全保护值 200)。 |
-| `noise_threshold` | `float` | 噪声概率过滤阈值 (0.0 ~ 1.0)。 |
-| `seed` | `int` | 随机种子。 |
-| `allow_rotation` | `bool` | 是否允许随机 Y 轴旋转。 |
-| `allow_scale` | `bool` | 是否允许随机 0.5x~2.0x 缩放。 |
-
-#### 碰撞与避障控制 (Collision Options)
-| 属性名 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `avoid_overlaps` | `bool` | 是否启用空间哈希碰撞避障。 |
-| `min_distance` | `float` | 实例之间的最小安全隔离距离。 |
-| `max_placement_attempts` | `int` | 单个实例寻找无碰撞位置的最大尝试次数。 |
+- [快速上手与高级工作流教程 (TUTORIAL_CN.md)](TUTORIAL_CN.md)：手把手教学、动图演示与关键的白盒烘焙性能优化方案。
+- [架构设计与技术内幕 (ARCHITECTURE_CN.md)](ARCHITECTURE_CN.md)：3D 空间哈希数学推导、策略模式架构解析与全量 API 字典。
+- [开发路线图 (ROADMAP_CN.md)](ROADMAP_CN.md)：项目未来规划与功能排期。
 
 ---
 
-### 3. 编辑器界面与工具栏说明
+## 致谢与开源协议
 
-#### 左侧工具栏 (CSGSideBlockoutBar)
-- **快捷创建按钮：** 快速放置 `CSGBox3D`、`CSGCylinder3D`、`CSGMesh3D`、`CSGPolygon3D`、`CSGSphere3D`、`CSGTorus3D`。
-- **操作符切换：** 自由切换生成节点的布尔类型：并集（Union）、交集（Intersection）、差集（Subtraction）。
-- **网格材质预设组：** 一键切换灰白网格、深灰网格、橙色网格、白模（无材质）与自定义材质选择器。
-- **一键应用材质 (Apply to Selected)：** 选中一个或多个 `CSGShape3D` 节点，点击即可将当前激活的材质预设批量赋予选中节点，完美支持 `Ctrl + Z` / `Ctrl + Y` 撤销重做。
-- **智能层级挂载：** 选中 `CSGCombiner3D`（含 Repeater/Spreader）时自动创建为子节点；选中普通 `CSGShape3D`（如 Box/Sphere）时自动创建为同级节点并紧随其后。
-- **自动隐藏：** 当未选中任何 CSG 节点时，左侧栏将平滑淡出隐藏（可在配置中关闭）。
+- **原始概念与界面原型灵感**：[LuckyTepot](https://github.com/LuckyTepot) (CSG Toolkit, Copyright (c) 2023).
+- **架构重构、3D 轮盘、空间哈希优化、阵列/散布系统与 GDScript 2.0 重写**：[qwqzhanqwq](https://github.com/qwqzhanqwq) (Copyright (c) 2026).
 
-#### 顶部工具栏 (CSGTopBlockoutBar)
-- 当在场景树中选中 `CSGRepeater3D` 或 `CSGSpreader3D` 时自动出现在 3D 编辑器上方。
-- **刷新 (Refresh)：** 重新计算并刷新生成预览实例。
-- **烘焙 (Bake)：** 将当前预览的动态子节点脱离生成器控制，设置其 `owner` 并转化为场景中的永久实体节点，方便后续手动调整。
-
----
-
-## 项目全局配置 (ProjectSettings)
-
-插件配置会自动注册至 Godot 的 `ProjectSettings` 中，路径位于 `addons/csg_blockout/*`：
-
-| 设置项路径 | 数据类型 | 默认值 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `addons/csg_blockout/action_key` | `int` (Key) | `KEY_SHIFT` | 主操作修饰键。 |
-| `addons/csg_blockout/auto_hide` | `bool` | `true` | 是否在取消选择 CSG 节点时自动隐藏左侧面板。 |
-| `addons/csg_blockout/language_override` | `String` | `"zh_CN"` | 语言偏好设置：`"en"` 或 `"zh_CN"`。 |
-| `addons/csg_blockout/material_preset` | `int` (Enum) | `1` (GRID_LIGHT) | 默认材质网格预设。 |
-
----
-
-## 安装与启用步骤
-
-1. 下载插件压缩包并解压。
-2. 将 `addons/csg_blockout` 目录复制到你的 Godot 4.7 项目的 `addons/` 目录下。
-3. 打开 Godot 编辑器，点击菜单栏 **项目 (Project) -> 项目设置 (Project Settings)**。
-4. 切换至 **插件 (Plugins)** 标签页。
-5. 找到 **CSG_Blockout**，勾选右侧的 **启用 (Enable)** 复选框。
-
----
-
-## 开源致谢与协议
-
-本插件由 [qwqzhanqwq](https://github.com/qwqzhanqwq) 基于开源项目 [CSG Toolkit](https://godotengine.org/asset-library/asset/3057) 进行重构与二次开发。
-
-- **原版概念设计与 UI 布局：** [LuckyTepot](https://github.com/LuckyTepot) (Copyright (c) 2023).
-- **架构重构、3D 轮盘菜单、空间哈希算法优化与 GDScript 2.0 重写：** [qwqzhanqwq](https://github.com/qwqzhanqwq) (Copyright (c) 2026).
-
-开源许可协议：[MIT License](LICENSE)
-
+本项目基于 [MIT License](LICENSE) 开源发布。

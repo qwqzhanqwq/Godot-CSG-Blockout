@@ -1,6 +1,6 @@
 # CSG Blockout 快速搭建与高级工作流教程
 
-*Read this in other languages: [English](TUTORIAL_EN.md).*
+*其他语言版本: [English](TUTORIAL_EN.md) | [返回主文档](README_CN.md) | [架构与技术内幕](ARCHITECTURE_CN.md)*
 
 ## 目录
 - [一、 基础篇：CSG 的基本概念](#一-基础篇csg-的基本概念)
@@ -92,4 +92,4 @@ CSG 节点在编辑阶段非常方便，但由于其实时布尔运算的特性�
 5. **删除原 CSG**：**直接删除**原来的 `CSGCombiner3D` 节点及其所有子节点。此时，沉重的布尔计算完全卸载，你得到的是一个性能极高、带有完美碰撞的静态游戏场景素材！
 
 > [!WARNING]
-> ⚠️**注意**：删除 CSG 节点前，建议将原始 CSG 节点结构保存为单独的 `CSG_Source.tscn` 场景文件或备用，以便后续修改关卡结构。
+> **注意**：删除 CSG 节点前，建议将原始 CSG 节点结构保存为单独的 `CSG_Source.tscn` 场景文件或备用，以便后续修改关卡结构。
