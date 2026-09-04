@@ -1,5 +1,8 @@
 <div align="center">
-  <img src="res/icon_transparent.svg" alt="CSG_Blockout Logo" width="180" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="res/icon_transparent.svg" />
+    <img src="res/icon_transparent_light.svg" alt="CSG_Blockout Logo" width="180" />
+  </picture>
   <h1>CSG_Blockout</h1>
 
   <p>
