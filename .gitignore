@@ -15,3 +15,7 @@ export_credentials.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# Planning / Roadmap docs
+ROADMAP*.md
+
