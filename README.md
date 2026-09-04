@@ -1,12 +1,23 @@
-# CSG_Blockout
+<div align="center">
+  <img src="res/icon_transparent.svg" alt="CSG_Blockout Logo" width="180" />
+  <h1>CSG_Blockout</h1>
 
-**CSG_Blockout** is a high-performance, modernized 3D level blockout and rapid prototyping plugin designed specifically for Godot 4.7.
+  <p>
+    <a href="README.md"><img src="https://img.shields.io/badge/Docs-English-blue?style=flat-square" alt="Docs English" /></a>
+    <a href="README_CN.md"><img src="https://img.shields.io/badge/%E6%96%87%E6%A1%A3-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-blue?style=flat-square" alt="文档 简体中文" /></a>
+    <a href="TUTORIAL_EN.md"><img src="https://img.shields.io/badge/Tutorial-English-orange?style=flat-square" alt="Tutorial English" /></a>
+    <a href="TUTORIAL_CN.md"><img src="https://img.shields.io/badge/%E6%95%99%E7%A8%8B-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-orange?style=flat-square" alt="教程 简体中文" /></a>
+  </p>
 
-Building upon the core concepts of [CSG Toolkit](https://godotengine.org/asset-library/asset/3057), this plugin undergoes a complete code rewrite and architectural redesign. It features a Spatial Hash Grid algorithm for O(1) collision avoidance, a responsive 3D Pie Menu, modular array pattern repeaters and volume spreaders, and a defensive GDScript 2.0 static typing architecture to deliver a rock-solid, crash-free workflow for level designers.
+  <p>
+    <a href="https://godotengine.org"><img src="https://img.shields.io/badge/Godot-4.7%2B-478cbf?style=flat-square&logo=godotengine&logoColor=white" alt="Godot Engine" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License: MIT" /></a>
+  </p>
 
-*Read this in other languages: [English](README.md), [简体中文](README_CN.md).*
-
-*📖 Tutorials: [English Tutorial](TUTORIAL_EN.md) | [简体中文教程](TUTORIAL_CN.md)*
+  <p>
+    <strong>A high-performance, modernized 3D level blockout and rapid prototyping plugin designed specifically for Godot 4.7.</strong>
+  </p>
+</div>
 
 ---
 

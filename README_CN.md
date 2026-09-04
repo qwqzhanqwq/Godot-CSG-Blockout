@@ -1,12 +1,23 @@
-# CSG_Blockout
+<div align="center">
+  <img src="res/icon_transparent.svg" alt="CSG_Blockout Logo" width="180" />
+  <h1>CSG_Blockout</h1>
 
-**CSG_Blockout** 是一个专为 Godot 4.7 打造的高性能、现代化的 3D 关卡白盒（Blockout）原型设计插件。
+  <p>
+    <a href="README.md"><img src="https://img.shields.io/badge/Docs-English-blue?style=flat-square" alt="Docs English" /></a>
+    <a href="README_CN.md"><img src="https://img.shields.io/badge/%E6%96%87%E6%A1%A3-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-blue?style=flat-square" alt="文档 简体中文" /></a>
+    <a href="TUTORIAL_EN.md"><img src="https://img.shields.io/badge/Tutorial-English-orange?style=flat-square" alt="Tutorial English" /></a>
+    <a href="TUTORIAL_CN.md"><img src="https://img.shields.io/badge/%E6%95%99%E7%A8%8B-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-orange?style=flat-square" alt="教程 简体中文" /></a>
+  </p>
 
-本插件在继承 [CSG Toolkit](https://godotengine.org/asset-library/asset/3057) 设计概念的基础上，进行了彻底的代码重构与架构升级。引入了基于空间哈希网格（Spatial Hash Grid）的碰撞避障算法、响应式 3D 轮盘菜单（Pie Menu）、模块化阵列与散布节点系统，以及全静态类型的 GDScript 2.0 防御性架构，旨在为游戏开发者提供极速、稳定、无崩溃的关卡原型搭建体验。
+  <p>
+    <a href="https://godotengine.org"><img src="https://img.shields.io/badge/Godot-4.7%2B-478cbf?style=flat-square&logo=godotengine&logoColor=white" alt="Godot 引擎" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="开源协议: MIT" /></a>
+  </p>
 
-*其他语言版本：[English](README.md), [简体中文](README_CN.md).*
-
-*📖 教程文档：[简体中文教程](TUTORIAL_CN.md) | [English Tutorial](TUTORIAL_EN.md)*
+  <p>
+    <strong>专为 Godot 4.7 打造的高性能、现代化的 3D 关卡白盒（Blockout）原型设计插件。</strong>
+  </p>
+</div>
 
 ---
 
