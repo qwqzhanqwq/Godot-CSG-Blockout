@@ -92,7 +92,6 @@ This plugin originated from the excellent open-source [CSG Toolkit](https://godo
 
 - [Quick Start & Advanced Workflow Tutorial (TUTORIAL_EN.md)](TUTORIAL_EN.md): Step-by-step guide, visual demonstrations, and the critical CSG-to-Mesh baking workflow.
 - [Architecture Design & Technical Internals (ARCHITECTURE.md)](ARCHITECTURE.md): Spatial Hash Grid algorithm derivation, design patterns, and complete API specifications.
-- [Project Roadmap (ROADMAP_CN.md)](ROADMAP_CN.md): Future milestones and development roadmap.
 
 ---
 
