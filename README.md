@@ -90,8 +90,15 @@ This plugin originated from the excellent open-source [CSG Toolkit](https://godo
 
 ## Documentation
 
+### English
+- [Main Documentation (README.md)](README.md): Plugin overview, installation, feature highlights, and credits.
 - [Quick Start & Advanced Workflow Tutorial (TUTORIAL_EN.md)](TUTORIAL_EN.md): Step-by-step guide, visual demonstrations, and the critical CSG-to-Mesh baking workflow.
 - [Architecture Design & Technical Internals (ARCHITECTURE.md)](ARCHITECTURE.md): Spatial Hash Grid algorithm derivation, design patterns, and complete API specifications.
+
+### 简体中文 (Simplified Chinese)
+- [中文主说明文档 (README_CN.md)](README_CN.md): 插件核心特性、安装指南、快速上手与演进历史。
+- [快速上手与高级工作流教程 (TUTORIAL_CN.md)](TUTORIAL_CN.md): 完整图文与动图教学、白盒烘焙与性能优化方案。
+- [架构设计与技术内幕 (ARCHITECTURE_CN.md)](ARCHITECTURE_CN.md): 3D 空间哈希数学推导、策略模式架构解析与全量 API 字典。
 
 ---
 

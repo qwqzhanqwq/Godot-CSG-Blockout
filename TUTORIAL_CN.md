@@ -19,7 +19,7 @@
 - **交集 (Intersection)**：只保留两个几何体相互重叠的部分。
 - **差集 (Subtraction)**：从一个几何体中“挖去”另一个几何体的体积。
 
-![CSG 差集演示](DocsImages/Subtraction.gif)
+![CSG 差集演示](DocsImages/Subtraction.webp)
 
 利用这些简单的操作，你可以迅速在场景中切出门洞、挖出地道或拼凑出复杂的建筑结构，而无需使用 Blender 等外部建模软件。
 
@@ -35,16 +35,16 @@ CSG_Blockout 插件旨在打破繁琐的层级操作，提供所见即所得的�
 3. **呼出菜单**：
    - **方式 A (轮盘菜单)**：将鼠标移至 3D 视口中，按下快捷键 `Shift + A`，即可在鼠标位置唤出 3D 轮盘菜单（Pie Menu）。顺着鼠标方向滑动即可快速选择布尔操作并生成基础形状。
      
-     ![Pie Menu 演示](DocsImages/PieMenu.gif)
+     ![Pie Menu 演示](DocsImages/PieMenu.webp)
      
    - **方式 B (侧边栏)**：直接使用 3D 视口左侧新增的插件侧边栏。首先点击下方图标选择布尔操作类型（并集、交集或差集），然后再点击上方的几何体图标（如立方体、球体等），即可一键添加带有该操作属性的 CSG 节点。
      
-     ![Sidebar 演示](DocsImages/Sidebar.gif)
+     ![Sidebar 演示](DocsImages/Sidebar.webp)
 4. **网格材质与原型度量**：
    - **程序化世界对齐网格**：侧边栏内置了三种开箱即用的世界对齐网格材质（灰白网格、深灰网格、橙色高亮网格），以及白模（无材质）与自定义材质通道。网格基于三平面投影（Triplanar），在物体旋转或缩放时不会发生纹理畸变或拉伸，非常适合在关卡前期度量角色尺度和空间距离。
    - **一键批量赋材质**：在视口或场景树中多选任意 `CSGShape3D` 节点，点击侧边栏材质组底部的 **“应用材质到选中节点”** 按钮，即可将当前激活的预设材质批量赋给所有选中节点。全流程支持 `Ctrl + Z` 撤销/重做。
      
-     ![材质预设与一键应用演示](DocsImages/MaterialPresets.gif)
+     ![材质预设与一键应用演示](DocsImages/MaterialPresets.webp)
      
 5. **智能层级挂载**：
    - 选中 `CSGCombiner3D`（或 `CSGRepeater3D` / `CSGSpreader3D`）时，新建节点将自动作为**子节点**挂载在其下方；

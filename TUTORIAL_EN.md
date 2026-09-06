@@ -19,7 +19,7 @@ In Godot, CSG is a powerful tool for level designers to block out levels or crea
 - **Intersection**: Retains only the overlapping portion of two geometries.
 - **Subtraction**: Carves out the volume of one geometry from another.
 
-![CSG Subtraction Demo](DocsImages/Subtraction.gif)
+![CSG Subtraction Demo](DocsImages/Subtraction.webp)
 
 Using these simple operations, you can quickly cut out doors, dig tunnels, or assemble complex architectural structures directly in the engine, completely bypassing external software like Blender.
 
@@ -35,16 +35,16 @@ The CSG_Blockout plugin is designed to eliminate tedious hierarchy management, p
 3. **Summon the Menu**:
    - **Method A (Pie Menu)**: Move your mouse over the 3D viewport and press `Shift + A`. A radial Pie Menu will appear at your cursor. Simply flick your mouse in the direction of your desired boolean operation and primitive shape.
      
-     ![Pie Menu Demo](DocsImages/PieMenu.gif)
+     ![Pie Menu Demo](DocsImages/PieMenu.webp)
      
    - **Method B (Sidebar)**: Use the newly added plugin sidebar on the left side of the 3D viewport. First, click the bottom icons to select a boolean operation (Union, Intersection, or Subtraction), and then click the top primitive shape icons (e.g., cube, sphere) to instantly add a CSG node with that operation.
      
-     ![Sidebar Demo](DocsImages/Sidebar.gif)
+     ![Sidebar Demo](DocsImages/Sidebar.webp)
 4. **Procedural Grid Materials & Scale Metrics**:
    - **World-Aligned Triplanar Grid**: The sidebar includes three procedural grid material presets (**Light Grid**, **Dark Grid**, **Orange Accent Grid**), along with **Unshaded (None)** and **Custom Material** slots. Powered by triplanar projection, the grid pattern stays perfectly aligned in world coordinates without texture stretching, making character scale and spatial distance estimation effortless.
    - **Apply Material to Selection**: Select one or more `CSGShape3D` nodes in the viewport or scene tree, then click the **"Apply Material to Selected"** button at the bottom of the material group to batch-assign the active preset. Fully integrated with `Ctrl + Z` Undo/Redo.
      
-     ![Material Presets & Quick Apply Demo](DocsImages/MaterialPresets.gif)
+     ![Material Presets & Quick Apply Demo](DocsImages/MaterialPresets.webp)
      
 5. **Smart Contextual Hierarchy Placement**:
    - Selecting a `CSGCombiner3D` (or `CSGRepeater3D` / `CSGSpreader3D`) automatically places new nodes as **children**.
