@@ -20,9 +20,11 @@ var button_tweens: Dictionary = {}
 var visibility_tween: Tween
 
 func _enter_tree() -> void:
+	add_to_group("csg_blockout_ui")
 	var sel := EditorInterface.get_selection()
 	if sel and not sel.selection_changed.is_connected(_on_selection_changed):
 		sel.selection_changed.connect(_on_selection_changed)
+	CsgBlockoutI18n.translate_node(self)
 
 func _exit_tree() -> void:
 	var sel := EditorInterface.get_selection()
@@ -106,8 +108,9 @@ func _ready() -> void:
 	var lang_btn = find_child("LanguageToggle", true, false)
 	if lang_btn and lang_btn is OptionButton:
 		lang_btn.clear()
-		lang_btn.add_item("EN", 0)
-		lang_btn.add_item("中文", 1)
+		lang_btn.add_item("Auto", 0)
+		lang_btn.add_item("EN", 1)
+		lang_btn.add_item("中文", 2)
 		_update_language_toggle_text()
 		
 	_setup_button_animations(self)
@@ -120,11 +123,16 @@ func update_language() -> void:
 func _update_language_toggle_text() -> void:
 	var btn = find_child("LanguageToggle", true, false)
 	if btn and btn is OptionButton:
-		var override = config.language_override if config else "zh_CN"
-		if override == "en":
-			btn.select(0)
-		else:
-			btn.select(1)
+		var override_lang = config.language_override if config else "auto"
+		match override_lang:
+			"auto", "":
+				btn.select(0)
+			"en":
+				btn.select(1)
+			"zh_CN", "zh":
+				btn.select(2)
+			_:
+				btn.select(0)
 
 func _sync_preset_buttons() -> void:
 	if not config:
@@ -262,12 +270,12 @@ func _on_apply_to_selected_pressed() -> void:
 		return
 	var selected_nodes = selection.get_selected_nodes().filter(func(n): return n is CSGShape3D)
 	if selected_nodes.is_empty():
-		push_warning(CsgBlockoutI18n.t("请先选择一个 CSGShape3D 节点以添加新 CSG 节点"))
+		push_warning(CsgBlockoutI18n.t("WARN_SELECT_CSG_SHAPE"))
 		return
 	
 	var active_mat: Material = config.get_active_material() if config else null
 	if CsgBlockout.undo_manager:
-		CsgBlockout.undo_manager.create_action(CsgBlockoutI18n.t("应用材质"))
+		CsgBlockout.undo_manager.create_action(CsgBlockoutI18n.t("APPLY_MATERIAL"))
 		for node in selected_nodes:
 			CsgBlockout.undo_manager.add_do_property(node, "material", active_mat)
 			CsgBlockout.undo_manager.add_undo_property(node, "material", (node as CSGShape3D).material)
@@ -278,7 +286,7 @@ func _on_apply_to_selected_pressed() -> void:
 
 func _request_material() -> void:
 	var dialog := EditorFileDialog.new()
-	dialog.title = CsgBlockoutI18n.t("选择材质")
+	dialog.title = CsgBlockoutI18n.t("SELECT_MATERIAL")
 	dialog.display_mode = EditorFileDialog.DISPLAY_LIST
 	dialog.filters = ["*.tres, *.material, *.res"]
 	dialog.file_mode = EditorFileDialog.FILE_MODE_OPEN_FILE
@@ -326,7 +334,7 @@ func create_csg(type: Variant) -> void:
 	var selection = EditorInterface.get_selection()
 	var selected_nodes = selection.get_selected_nodes()
 	if selected_nodes.is_empty() or !(selected_nodes[0] is CSGShape3D):
-		push_warning(CsgBlockoutI18n.t("请先选择一个 CSGShape3D 节点以添加新 CSG 节点"))
+		push_warning(CsgBlockoutI18n.t("WARN_SELECT_CSG_SHAPE"))
 		return
 	var selected_node: CSGShape3D = selected_nodes[0]
 	var csg: CSGShape3D
@@ -338,7 +346,7 @@ func create_csg(type: Variant) -> void:
 		CSGPolygon3D: csg = CSGPolygon3D.new()
 		CSGTorus3D: csg = CSGTorus3D.new()
 		_:
-			push_warning(CsgBlockoutI18n.t("未知或不支持的 CSG 节点类型"))
+			push_warning(CsgBlockoutI18n.t("WARN_UNSUPPORTED_CSG_TYPE"))
 			return
 
 	csg.operation = operation
@@ -366,7 +374,7 @@ func create_csg(type: Variant) -> void:
 			insert_index = selected_node.get_index() + 1
 
 	if CsgBlockout.undo_manager:
-		CsgBlockout.undo_manager.create_action(CsgBlockoutI18n.t("添加 %s") % csg.get_class())
+		CsgBlockout.undo_manager.create_action(CsgBlockoutI18n.tf("ADD_NODE", [csg.get_class()]))
 		CsgBlockout.undo_manager.add_undo_reference(csg)
 		CsgBlockout.undo_manager.add_do_method(self, "_undoable_add_csg", parent, csg, owner_ref, selected_node.global_position, insert_index)
 		CsgBlockout.undo_manager.add_do_method(self, "_select_created_csg", csg)
@@ -413,7 +421,8 @@ func _select_created_csg(csg: Node) -> void:
 func _on_language_toggle_item_selected(index: int) -> void:
 	if config:
 		match index:
-			0: config.language_override = "en"
-			1: config.language_override = "zh_CN"
+			0: config.language_override = "auto"
+			1: config.language_override = "en"
+			2: config.language_override = "zh_CN"
 		config.save_config()
 		get_tree().call_group("csg_blockout_ui", "update_language")

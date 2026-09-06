@@ -7,14 +7,13 @@ func _enter_tree() -> void:
 	if sel and not sel.selection_changed.is_connected(_on_selection_changed):
 		sel.selection_changed.connect(_on_selection_changed)
 	_on_selection_changed()
-	CsgBlockoutI18n.translate_node(self)
-	# Attempt to find buttons and add tooltips if present
+	
 	var refresh_btn = find_child("Refresh", true, false)
 	if refresh_btn and refresh_btn is Button:
-		refresh_btn.tooltip_text = CsgBlockoutI18n.t("重新生成预览实例")
-	var bake_btn = find_child("Bake", true, false)
-	if bake_btn and bake_btn is Button:
-		bake_btn.tooltip_text = CsgBlockoutI18n.t("将生成的实例烘焙至场景中 (使其永久保留)")
+		refresh_btn.set_meta("i18n_text_key", "REFRESH")
+		refresh_btn.set_meta("i18n_tooltip_key", "REGEN_PREVIEW_TOOLTIP")
+		
+	CsgBlockoutI18n.translate_node(self)
 
 func update_language() -> void:
 	CsgBlockoutI18n.translate_node(self)

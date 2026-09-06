@@ -18,7 +18,7 @@ const SETTING_MATERIAL_PRESET = "addons/csg_blockout/material_preset"
 # Default values
 const DEFAULT_ACTION_KEY = KEY_SHIFT
 const DEFAULT_AUTO_HIDE = true
-const DEFAULT_LANGUAGE_OVERRIDE = "zh_CN"
+const DEFAULT_LANGUAGE_OVERRIDE = "auto"
 const DEFAULT_MATERIAL_PRESET = MaterialPreset.GRID_LIGHT
 
 enum MaterialPreset {
@@ -45,8 +45,8 @@ var auto_hide: bool = true:
 	get: return _get_setting(SETTING_AUTO_HIDE, DEFAULT_AUTO_HIDE)
 	set(value): _set_setting(SETTING_AUTO_HIDE, value)
 
-## Language override (en, zh_CN)
-var language_override: String = "zh_CN":
+## Language override (auto, en, zh_CN)
+var language_override: String = "auto":
 	get: return _get_setting(SETTING_LANGUAGE_OVERRIDE, DEFAULT_LANGUAGE_OVERRIDE)
 	set(value): _set_setting(SETTING_LANGUAGE_OVERRIDE, value)
 
@@ -89,7 +89,7 @@ func _ensure_settings_exist() -> void:
 			"name": SETTING_LANGUAGE_OVERRIDE,
 			"type": TYPE_STRING,
 			"hint": PROPERTY_HINT_ENUM,
-			"hint_string": "en,zh_CN"
+			"hint_string": "auto,en,zh_CN"
 		})
 
 	if not ProjectSettings.has_setting(SETTING_MATERIAL_PRESET):

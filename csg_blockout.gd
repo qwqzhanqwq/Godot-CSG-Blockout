@@ -15,28 +15,28 @@ var default_csg_operation: int = 0 # CSGShape3D.OPERATION_UNION
 
 func _get_shape_menu() -> Array[Dictionary]:
 	return [
-		{"label": CsgBlockoutI18n.t("立方体"), "type": "create_csg", "csg_type": "CSGBox3D"},
-		{"label": CsgBlockoutI18n.t("圆柱体"), "type": "create_csg", "csg_type": "CSGCylinder3D"},
-		{"label": CsgBlockoutI18n.t("网格"), "type": "create_csg", "csg_type": "CSGMesh3D"},
-		{"label": CsgBlockoutI18n.t("多边形"), "type": "create_csg", "csg_type": "CSGPolygon3D"},
-		{"label": CsgBlockoutI18n.t("球体"), "type": "create_csg", "csg_type": "CSGSphere3D"},
-		{"label": CsgBlockoutI18n.t("圆环"), "type": "create_csg", "csg_type": "CSGTorus3D"}
+		{"label": CsgBlockoutI18n.t("BOX"), "type": "create_csg", "csg_type": "CSGBox3D"},
+		{"label": CsgBlockoutI18n.t("CYLINDER"), "type": "create_csg", "csg_type": "CSGCylinder3D"},
+		{"label": CsgBlockoutI18n.t("MESH"), "type": "create_csg", "csg_type": "CSGMesh3D"},
+		{"label": CsgBlockoutI18n.t("POLYGON"), "type": "create_csg", "csg_type": "CSGPolygon3D"},
+		{"label": CsgBlockoutI18n.t("SPHERE"), "type": "create_csg", "csg_type": "CSGSphere3D"},
+		{"label": CsgBlockoutI18n.t("TORUS"), "type": "create_csg", "csg_type": "CSGTorus3D"}
 	]
 
 func _get_pie_menu_items() -> Array[Dictionary]:
 	return [
 		{
-			"label": CsgBlockoutI18n.t("并集"), "type": "submenu",
+			"label": CsgBlockoutI18n.t("UNION"), "type": "submenu",
 			"operation": 0,
 			"children": _get_shape_menu()
 		},
 		{
-			"label": CsgBlockoutI18n.t("交集"), "type": "submenu",
+			"label": CsgBlockoutI18n.t("INTERSECTION"), "type": "submenu",
 			"operation": 1,
 			"children": _get_shape_menu()
 		},
 		{
-			"label": CsgBlockoutI18n.t("差集"), "type": "submenu",
+			"label": CsgBlockoutI18n.t("SUBTRACTION"), "type": "submenu",
 			"operation": 2,
 			"children": _get_shape_menu()
 		}
@@ -135,7 +135,7 @@ func _on_pie_menu_action_triggered(item: Dictionary) -> void:
 		var selection = EditorInterface.get_selection().get_selected_nodes()
 		if selection.size() > 0 and selection[0] is CSGShape3D:
 			var node = selection[0] as CSGShape3D
-			undo_manager.create_action(CsgBlockoutI18n.t("更改 CSG 操作"))
+			undo_manager.create_action(CsgBlockoutI18n.t("CHANGE_CSG_OP"))
 			undo_manager.add_do_property(node, "operation", op)
 			undo_manager.add_undo_property(node, "operation", node.operation)
 			undo_manager.commit_action()
@@ -191,7 +191,7 @@ func _create_csg_node(csg_type: String) -> void:
 	if owner_ref == null:
 		owner_ref = parent
 		
-	undo_manager.create_action(CsgBlockoutI18n.t("创建 ") + csg_type)
+	undo_manager.create_action(CsgBlockoutI18n.tf("CREATE_NODE", [csg_type]))
 	undo_manager.add_undo_reference(new_node)
 	undo_manager.add_do_method(self, "_undoable_create_csg", parent, new_node, owner_ref, target_pos, insert_index)
 	undo_manager.add_do_method(self, "_select_node", new_node)
