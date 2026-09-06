@@ -169,5 +169,5 @@ graph TD
 | :--- | :--- | :--- | :--- |
 | `addons/csg_blockout/action_key` | `int` (Key) | `KEY_SHIFT` | 3D 轮盘菜单主触发修饰键。 |
 | `addons/csg_blockout/auto_hide` | `bool` | `true` | 视口未选中 CSG 节点时自动隐藏左侧边栏。 |
-| `addons/csg_blockout/language_override` | `String` | `"zh_CN"` | 界面语言偏好覆盖 (`"en"` 或 `"zh_CN"`)。 |
+| `addons/csg_blockout/language_override` | `String` | `"auto"` | 界面语言偏好覆盖 (`"auto"`、`"en"`、`"zh_CN"`、`"ja"`、`"ko"`、`"es"`、`"pt"`、`"ru"`)。 |
 | `addons/csg_blockout/material_preset` | `int` (Enum) | `1` (GRID_LIGHT) | 默认激活的网格材质预设通道。 |

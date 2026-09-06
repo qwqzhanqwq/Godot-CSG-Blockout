@@ -169,5 +169,5 @@ Configuration options are registered under `addons/csg_blockout/*`:
 | :--- | :--- | :--- | :--- |
 | `addons/csg_blockout/action_key` | `int` (Key) | `KEY_SHIFT` | Primary action modifier key for 3D Pie Menu. |
 | `addons/csg_blockout/auto_hide` | `bool` | `true` | Auto-hides left sidebar when no CSG node is selected. |
-| `addons/csg_blockout/language_override` | `String` | `"zh_CN"` | Language preference override (`"en"` or `"zh_CN"`). |
+| `addons/csg_blockout/language_override` | `String` | `"auto"` | Language preference override (`"auto"`, `"en"`, `"zh_CN"`, `"ja"`, `"ko"`, `"es"`, `"pt"`, `"ru"`). |
 | `addons/csg_blockout/material_preset` | `int` (Enum) | `1` (GRID_LIGHT) | Default active grid material preset. |

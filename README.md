@@ -66,7 +66,7 @@ In Godot, go to **Project -> Project Settings -> Plugins**, find **CSG_Blockout*
 - **Ready-to-Use Material Presets & Batch Assignment**: Pre-configured measurement materials (Light, Dark, Accent, Unshaded) with one-click batch application to all selected CSG nodes.
 - **Parametric Array Generator (CSGRepeater3D)**: Strategy-pattern array distributions (Grid, Circular, Spiral, and 3D Noise volume sampling) with randomized rotation and scale.
 - **Volume Collision Scatterer (CSGSpreader3D)**: Scatter instances within any Godot `Shape3D` volume without overlaps. Powered by a custom $\mathcal{O}(1)$ 3D Spatial Hash Grid algorithm.
-- **GDScript 2.0 Static Typing & Dual Localization**: Fully typed codebase, atomic `EditorUndoRedoManager` support (`Ctrl + Z` / `Ctrl + Y`), and built-in English and Simplified Chinese (i18n) localization.
+- **GDScript 2.0 Static Typing & Multi-Language Support**: Fully typed codebase, atomic `EditorUndoRedoManager` support (`Ctrl + Z` / `Ctrl + Y`), and built-in 7-language (i18n) localization (English, Simplified Chinese, Japanese, Korean, Spanish, Portuguese, Russian).
 
 ---
 
@@ -84,7 +84,7 @@ This plugin originated from the excellent open-source [CSG Toolkit](https://godo
 | **Scatter Algorithm**| No collision avoidance or naive $\mathcal{O}(N^2)$ | **Custom 3D Spatial Hash Grid ($\mathcal{O}(1)$ lookup)**, real-time calculation |
 | **Materials** | Basic default materials | **World-aligned triplanar anti-aliased shader** + 5 presets + 1-click batch assign |
 | **Robustness** | Basic editor state | **Atomic `EditorUndoRedoManager` integration** with strict editor/runtime decoupling |
-| **Localization** | English only | **Native dual language support** (Simplified Chinese & English) |
+| **Localization** | English only | **Native multi-language support** (English, Simplified Chinese, Japanese, Korean, Spanish, Portuguese, Russian) |
 
 ---
 
