@@ -111,6 +111,11 @@ func _ready() -> void:
 		lang_btn.add_item("Auto", 0)
 		lang_btn.add_item("EN", 1)
 		lang_btn.add_item("中文", 2)
+		lang_btn.add_item("日本語", 3)
+		lang_btn.add_item("한국어", 4)
+		lang_btn.add_item("Español", 5)
+		lang_btn.add_item("Português", 6)
+		lang_btn.add_item("Русский", 7)
 		_update_language_toggle_text()
 		
 	_setup_button_animations(self)
@@ -131,6 +136,16 @@ func _update_language_toggle_text() -> void:
 				btn.select(1)
 			"zh_CN", "zh":
 				btn.select(2)
+			"ja":
+				btn.select(3)
+			"ko":
+				btn.select(4)
+			"es":
+				btn.select(5)
+			"pt", "pt_BR", "pt_PT":
+				btn.select(6)
+			"ru":
+				btn.select(7)
 			_:
 				btn.select(0)
 
@@ -424,5 +439,10 @@ func _on_language_toggle_item_selected(index: int) -> void:
 			0: config.language_override = "auto"
 			1: config.language_override = "en"
 			2: config.language_override = "zh_CN"
+			3: config.language_override = "ja"
+			4: config.language_override = "ko"
+			5: config.language_override = "es"
+			6: config.language_override = "pt"
+			7: config.language_override = "ru"
 		config.save_config()
 		get_tree().call_group("csg_blockout_ui", "update_language")

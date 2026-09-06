@@ -45,7 +45,7 @@ var auto_hide: bool = true:
 	get: return _get_setting(SETTING_AUTO_HIDE, DEFAULT_AUTO_HIDE)
 	set(value): _set_setting(SETTING_AUTO_HIDE, value)
 
-## Language override (auto, en, zh_CN)
+## Language override (auto, en, zh_CN, ja, ko, es, pt, ru)
 var language_override: String = "auto":
 	get: return _get_setting(SETTING_LANGUAGE_OVERRIDE, DEFAULT_LANGUAGE_OVERRIDE)
 	set(value): _set_setting(SETTING_LANGUAGE_OVERRIDE, value)
@@ -89,7 +89,7 @@ func _ensure_settings_exist() -> void:
 			"name": SETTING_LANGUAGE_OVERRIDE,
 			"type": TYPE_STRING,
 			"hint": PROPERTY_HINT_ENUM,
-			"hint_string": "auto,en,zh_CN"
+			"hint_string": "auto,en,zh_CN,ja,ko,es,pt,ru"
 		})
 
 	if not ProjectSettings.has_setting(SETTING_MATERIAL_PRESET):
