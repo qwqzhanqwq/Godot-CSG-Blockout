@@ -14,6 +14,8 @@ const SETTING_ACTION_KEY = "addons/csg_blockout/action_key"
 const SETTING_AUTO_HIDE = "addons/csg_blockout/auto_hide"
 const SETTING_LANGUAGE_OVERRIDE = "addons/csg_blockout/language_override"
 const SETTING_MATERIAL_PRESET = "addons/csg_blockout/material_preset"
+const SETTING_DEFAULT_OPERATION = "addons/csg_blockout/default_operation"
+const SETTING_CUSTOM_MATERIAL_PATH = "addons/csg_blockout/custom_material_path"
 
 # Default values
 const DEFAULT_ACTION_KEY = KEY_SHIFT
@@ -32,6 +34,7 @@ enum MaterialPreset {
 signal config_saved()
 signal material_preset_changed(preset: MaterialPreset)
 signal custom_material_changed(mat: Material)
+signal default_operation_changed(op: CSGShape3D.Operation)
 
 # Configurable properties
 
@@ -57,9 +60,23 @@ var material_preset: MaterialPreset = MaterialPreset.GRID_LIGHT:
 		_set_setting(SETTING_MATERIAL_PRESET, value)
 		material_preset_changed.emit(value)
 
+## Default CSG boolean operation applied to newly created nodes (shared by pie menu & sidebar)
+var default_operation: CSGShape3D.Operation = CSGShape3D.OPERATION_UNION:
+	get: return _get_setting(SETTING_DEFAULT_OPERATION, CSGShape3D.OPERATION_UNION) as CSGShape3D.Operation
+	set(value):
+		_set_setting(SETTING_DEFAULT_OPERATION, value)
+		default_operation_changed.emit(value)
+
 var custom_material: Material = null:
+	get:
+		if custom_material == null:
+			var path: String = _get_setting(SETTING_CUSTOM_MATERIAL_PATH, "")
+			if not path.is_empty() and ResourceLoader.exists(path):
+				custom_material = ResourceLoader.load(path) as Material
+		return custom_material
 	set(value):
 		custom_material = value
+		_set_setting(SETTING_CUSTOM_MATERIAL_PATH, value.resource_path if value != null else "")
 		custom_material_changed.emit(value)
 
 func _ensure_settings_exist() -> void:
@@ -100,6 +117,16 @@ func _ensure_settings_exist() -> void:
 			"type": TYPE_INT,
 			"hint": PROPERTY_HINT_ENUM,
 			"hint_string": "None,Light Grid,Dark Grid,Orange Grid,Custom"
+		})
+
+	if not ProjectSettings.has_setting(SETTING_DEFAULT_OPERATION):
+		ProjectSettings.set_setting(SETTING_DEFAULT_OPERATION, CSGShape3D.OPERATION_UNION)
+		ProjectSettings.set_initial_value(SETTING_DEFAULT_OPERATION, CSGShape3D.OPERATION_UNION)
+		ProjectSettings.add_property_info({
+			"name": SETTING_DEFAULT_OPERATION,
+			"type": TYPE_INT,
+			"hint": PROPERTY_HINT_ENUM,
+			"hint_string": "Union:0,Intersection:1,Subtraction:2"
 		})
 
 func get_preset_material(preset: MaterialPreset) -> Material:

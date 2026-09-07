@@ -11,7 +11,6 @@ static var undo_manager: EditorUndoRedoManager
 
 var pie_menu: CsgPieMenu
 var pie_menu_tab_pressed_time: int = 0
-var default_csg_operation: int = 0 # CSGShape3D.OPERATION_UNION
 
 func _get_shape_menu() -> Array[Dictionary]:
 	return [
@@ -130,7 +129,8 @@ func _on_pie_menu_action_triggered(item: Dictionary) -> void:
 	
 	if action_type == "submenu" and item.has("operation"):
 		var op = item.get("operation")
-		default_csg_operation = op
+		if config:
+			config.default_operation = op
 		
 		var selection = EditorInterface.get_selection().get_selected_nodes()
 		if selection.size() > 0 and selection[0] is CSGShape3D:
@@ -151,7 +151,7 @@ func _create_csg_node(csg_type: String) -> void:
 		return
 		
 	if new_node is CSGShape3D:
-		new_node.operation = default_csg_operation
+		new_node.operation = config.default_operation if config else CSGShape3D.OPERATION_UNION
 		if config:
 			new_node.material = config.get_active_material()
 		

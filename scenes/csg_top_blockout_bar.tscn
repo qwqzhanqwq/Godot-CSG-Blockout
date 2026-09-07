@@ -13,4 +13,10 @@ layout_mode = 2
 text = "刷新"
 flat = true
 
+[node name="Bake" type="Button" parent="."]
+layout_mode = 2
+text = "烘焙"
+flat = true
+
 [connection signal="pressed" from="Refresh" to="." method="_on_refresh_pressed"]
+[connection signal="pressed" from="Bake" to="." method="_on_bake_pressed"]

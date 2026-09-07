@@ -4,8 +4,6 @@ class_name CSGSideBlockoutBar extends Control
 var config: CsgBlockoutConfig:
 	get: return CsgBlockoutConfig.get_config()
 
-var operation: CSGShape3D.Operation = CSGShape3D.OPERATION_UNION
-
 const BASE_BAR_MIN_WIDTH: float = 52.0
 const BASE_BTN_SIZE: Vector2 = Vector2(42.0, 42.0)
 const BASE_MATERIAL_BTN_SIZE: Vector2 = Vector2(42.0, 36.0)
@@ -24,12 +22,21 @@ func _enter_tree() -> void:
 	var sel := EditorInterface.get_selection()
 	if sel and not sel.selection_changed.is_connected(_on_selection_changed):
 		sel.selection_changed.connect(_on_selection_changed)
+	var cfg := config
+	if cfg and not cfg.default_operation_changed.is_connected(_on_default_operation_changed):
+		cfg.default_operation_changed.connect(_on_default_operation_changed)
 	CsgBlockoutI18n.translate_node(self)
 
 func _exit_tree() -> void:
 	var sel := EditorInterface.get_selection()
 	if sel and sel.selection_changed.is_connected(_on_selection_changed):
 		sel.selection_changed.disconnect(_on_selection_changed)
+	var cfg := config
+	if cfg and cfg.default_operation_changed.is_connected(_on_default_operation_changed):
+		cfg.default_operation_changed.disconnect(_on_default_operation_changed)
+
+func _on_default_operation_changed(_op: CSGShape3D.Operation) -> void:
+	_sync_operation_buttons()
 
 func _on_selection_changed() -> void:
 	var auto_hide_enabled := config.auto_hide if config else true
@@ -120,6 +127,7 @@ func _ready() -> void:
 		
 	_setup_button_animations(self)
 	_sync_preset_buttons()
+	_sync_operation_buttons()
 
 func update_language() -> void:
 	CsgBlockoutI18n.translate_node(self)
@@ -245,11 +253,22 @@ func _on_operation_pressed(val := 0) -> void:
 	set_operation(val)
 
 func set_operation(val: int) -> void:
+	if not config:
+		return
 	match val:
-		0: operation = CSGShape3D.OPERATION_UNION
-		1: operation = CSGShape3D.OPERATION_INTERSECTION
-		2: operation = CSGShape3D.OPERATION_SUBTRACTION
-		_: operation = CSGShape3D.OPERATION_UNION
+		0: config.default_operation = CSGShape3D.OPERATION_UNION
+		1: config.default_operation = CSGShape3D.OPERATION_INTERSECTION
+		2: config.default_operation = CSGShape3D.OPERATION_SUBTRACTION
+		_: config.default_operation = CSGShape3D.OPERATION_UNION
+
+func _sync_operation_buttons() -> void:
+	var op: CSGShape3D.Operation = config.default_operation if config else CSGShape3D.OPERATION_UNION
+	var btn_union: Button = find_child("Union", true, false) as Button
+	var btn_intersection: Button = find_child("Intersection", true, false) as Button
+	var btn_subtraction: Button = find_child("Subtraction", true, false) as Button
+	if btn_union: btn_union.button_pressed = (op == CSGShape3D.OPERATION_UNION)
+	if btn_intersection: btn_intersection.button_pressed = (op == CSGShape3D.OPERATION_INTERSECTION)
+	if btn_subtraction: btn_subtraction.button_pressed = (op == CSGShape3D.OPERATION_SUBTRACTION)
 
 # Material Preset Handlers
 func _on_preset_light_pressed() -> void:
@@ -364,7 +383,7 @@ func create_csg(type: Variant) -> void:
 			push_warning(CsgBlockoutI18n.t("WARN_UNSUPPORTED_CSG_TYPE"))
 			return
 
-	csg.operation = operation
+	csg.operation = config.default_operation if config else CSGShape3D.OPERATION_UNION
 	if config:
 		csg.material = config.get_active_material()
 

@@ -154,24 +154,23 @@ func get_random_position_in_area() -> Vector3:
 			rng.randf_range(-size.z * 0.5, size.z * 0.5)
 		)
 	if spread_area_3d is CapsuleShape3D:
-		var radius = spread_area_3d.get_radius()
-		var height = spread_area_3d.get_height() * 0.5
-		if rng.randf() < noise_threshold:
-			var angle = rng.randf() * TAU
-			var r = radius * sqrt(rng.randf())
-			return Vector3(r * cos(angle), rng.randf_range(-height, height), r * sin(angle))
-		else:
-			var hemisphere_y = height if rng.randf() < noise_threshold else -height
-			var u = rng.randf()
-			var v = rng.randf()
-			var theta = u * TAU
-			var phi = acos(1.0 - v)
-			var r = radius * pow(rng.randf(), 1.0 / 3.0)
-			return Vector3(
-				r * sin(phi) * cos(theta),
-				hemisphere_y + r * cos(phi) * (1 if hemisphere_y > 0 else -1),
-				r * sin(phi) * sin(theta)
-			)
+		var capsule: CapsuleShape3D = spread_area_3d
+		var radius: float = capsule.radius
+		var half_mid: float = maxf(0.0, capsule.height - 2.0 * capsule.radius) * 0.5
+		if rng.randf() < 0.5:
+			var angle: float = rng.randf() * TAU
+			var r: float = radius * sqrt(rng.randf())
+			return Vector3(r * cos(angle), rng.randf_range(-half_mid, half_mid), r * sin(angle))
+		var hemisphere_y: float = half_mid if rng.randf() < 0.5 else -half_mid
+		var theta: float = rng.randf() * TAU
+		var phi: float = acos(1.0 - rng.randf())
+		var cap_r: float = radius * pow(rng.randf(), 1.0 / 3.0)
+		var cap_sign: float = 1.0 if hemisphere_y > 0.0 else -1.0
+		return Vector3(
+			cap_r * sin(phi) * cos(theta),
+			hemisphere_y + cap_r * cos(phi) * cap_sign,
+			cap_r * sin(phi) * sin(theta)
+		)
 	if spread_area_3d is CylinderShape3D:
 		var radius = spread_area_3d.get_radius()
 		var height = spread_area_3d.get_height() * 0.5
@@ -242,7 +241,9 @@ func spread_template() -> void:
 		push_warning("CSGSpreader3D: max_count %s exceeds cap %s. Limiting." % [_max_count, MAX_INSTANCES])
 
 	# Spatial Hash Grid for O(1) distance checks
-	var cell_size: float = _min_distance / sqrt(3.0)
+	# Cell edge must be >= min_distance so any point within min_distance of a
+	# candidate is always inside the +/-1 neighborhood (27 cells).
+	var cell_size: float = maxf(_min_distance, 0.001)
 	var spatial_grid: Dictionary = {} # Vector3i -> Array[Vector3]
 
 	for i in range(budget):
@@ -341,16 +342,43 @@ func bake_instances() -> void:
 		else:
 			target_owner = self
 
+	var baked: Array[Node] = []
 	for child in get_children(true):
 		if child.has_meta(SPREADER_NODE_META):
-			child.remove_meta(SPREADER_NODE_META)
-			child.set_owner(target_owner)
+			baked.append(child)
 			var stack: Array[Node] = []
 			stack.append_array(child.get_children())
 			while stack.size() > 0:
 				var node: Node = stack.pop_back()
-				node.set_owner(target_owner)
+				baked.append(node)
 				stack.append_array(node.get_children())
+	if baked.is_empty():
+		return
+
+	if Engine.is_editor_hint() and CsgBlockout.undo_manager:
+		var um: EditorUndoRedoManager = CsgBlockout.undo_manager
+		um.create_action(CsgBlockoutI18n.t("BAKE"))
+		for node in baked:
+			um.add_undo_reference(node)
+			um.add_do_property(node, "owner", target_owner)
+			um.add_undo_property(node, "owner", node.owner)
+		um.add_do_method(self, "_bake_clear_meta", baked)
+		um.add_undo_method(self, "_bake_restore_meta", baked)
+		um.commit_action()
+	else:
+		for node in baked:
+			node.set_owner(target_owner)
+		_bake_clear_meta(baked)
+
+func _bake_clear_meta(nodes: Array[Node]) -> void:
+	for node in nodes:
+		if is_instance_valid(node):
+			node.remove_meta(SPREADER_NODE_META)
+
+func _bake_restore_meta(nodes: Array[Node]) -> void:
+	for node in nodes:
+		if is_instance_valid(node):
+			node.set_meta(SPREADER_NODE_META, true)
 
 func _get_property_list() -> Array[Dictionary]:
 	return [{

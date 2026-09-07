@@ -12,6 +12,11 @@ func _enter_tree() -> void:
 	if refresh_btn and refresh_btn is Button:
 		refresh_btn.set_meta("i18n_text_key", "REFRESH")
 		refresh_btn.set_meta("i18n_tooltip_key", "REGEN_PREVIEW_TOOLTIP")
+
+	var bake_btn = find_child("Bake", true, false)
+	if bake_btn and bake_btn is Button:
+		bake_btn.set_meta("i18n_text_key", "BAKE")
+		bake_btn.set_meta("i18n_tooltip_key", "BAKE_INSTANCES_TOOLTIP")
 		
 	CsgBlockoutI18n.translate_node(self)
 

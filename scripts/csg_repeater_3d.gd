@@ -11,6 +11,10 @@ const _REF_NOISE = preload("res://addons/csg_blockout/scripts/patterns/noise_pat
 const REPEATER_NODE_META = "REPEATED_NODE_META"
 const MAX_INSTANCES = 200
 const REGEN_THROTTLE_MS: int = 150
+const _CORNER_MASKS: Array[Vector3] = [
+	Vector3(0, 0, 0), Vector3(1, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, 1),
+	Vector3(1, 1, 0), Vector3(1, 0, 1), Vector3(0, 1, 1), Vector3(1, 1, 1)
+]
 
 var _dirty: bool = false
 var _last_regen_ms: int = 0
@@ -345,14 +349,19 @@ func _get_combined_aabb(node: Node) -> AABB:
 		combined = aabb
 		found = true
 	for child in node.get_children():
-		if child is Node3D:
-			var child_aabb = _get_combined_aabb(child)
-			if child_aabb.size != Vector3.ZERO:
-				if not found:
-					combined = child_aabb
-					found = true
-				else:
-					combined = combined.merge(child_aabb)
+		if not (child is Node3D):
+			continue
+		var child_aabb: AABB = _get_combined_aabb(child)
+		if child_aabb.size == Vector3.ZERO:
+			continue
+		var child_3d: Node3D = child
+		for mask in _CORNER_MASKS:
+			var corner: Vector3 = child_3d.transform * (child_aabb.position + mask * child_aabb.size)
+			if found:
+				combined = combined.expand(corner)
+			else:
+				combined = AABB(corner, Vector3.ZERO)
+				found = true
 	return combined if found else AABB(Vector3.ZERO, Vector3.ZERO)
 
 func _apply_material_recursive(node: Node, material: Material) -> void:
@@ -548,13 +557,40 @@ func bake_instances() -> void:
 		else:
 			target_owner = self
 
+	var baked: Array[Node] = []
 	for child in get_children(true):
 		if child.has_meta(REPEATER_NODE_META):
-			child.remove_meta(REPEATER_NODE_META)
-			child.set_owner(target_owner)
+			baked.append(child)
 			var stack: Array[Node] = []
 			stack.append_array(child.get_children())
 			while stack.size() > 0:
 				var node: Node = stack.pop_back()
-				node.set_owner(target_owner)
+				baked.append(node)
 				stack.append_array(node.get_children())
+	if baked.is_empty():
+		return
+
+	if Engine.is_editor_hint() and CsgBlockout.undo_manager:
+		var um: EditorUndoRedoManager = CsgBlockout.undo_manager
+		um.create_action(CsgBlockoutI18n.t("BAKE"))
+		for node in baked:
+			um.add_undo_reference(node)
+			um.add_do_property(node, "owner", target_owner)
+			um.add_undo_property(node, "owner", node.owner)
+		um.add_do_method(self, "_bake_clear_meta", baked)
+		um.add_undo_method(self, "_bake_restore_meta", baked)
+		um.commit_action()
+	else:
+		for node in baked:
+			node.set_owner(target_owner)
+		_bake_clear_meta(baked)
+
+func _bake_clear_meta(nodes: Array[Node]) -> void:
+	for node in nodes:
+		if is_instance_valid(node):
+			node.remove_meta(REPEATER_NODE_META)
+
+func _bake_restore_meta(nodes: Array[Node]) -> void:
+	for node in nodes:
+		if is_instance_valid(node):
+			node.set_meta(REPEATER_NODE_META, true)
