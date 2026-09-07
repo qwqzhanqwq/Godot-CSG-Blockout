@@ -26,12 +26,12 @@ $$\text{Complexity} = \mathcal{O}(N^2)$$
 When populating hundreds of complex CSG geometric instances in real-time, performing hundreds of thousands of 3D distance checks per second causes significant frame drops and editor freezes.
 
 ### 2. Spatial Hash Grid Implementation
-`CSG_Blockout` introduces a custom 3D spatial hash grid in `scripts/csg_spatial_hash_3d.gd`:
+`CSG_Blockout` implements the 3D spatial hash grid directly inside `CSGSpreader3D`, using a `Dictionary` keyed by `Vector3i` cell coordinates:
 
 1. **Cell Size Determination**:
-   Given the user-defined minimum distance $d_{\min}$ (`min_distance`), the cubic grid cell size is calculated as:
-   $$\text{Cell Size} = \frac{d_{\min}}{\sqrt{3}}$$
-   This mathematical threshold ensures that no single cubic cell can contain more than one point separated by at least $d_{\min}$, drastically pruning potential collision candidates.
+   Given the user-defined minimum distance $d_{\min}$ (`min_distance`), the cubic grid cell size is set to:
+   $$\text{Cell Size} = d_{\min}$$
+   Any two points within $d_{\min}$ of each other can never differ by more than $d_{\min}$ along a single axis, so they always land in cells that are at most one apart in each dimension. This guarantees that the 27-cell neighborhood below covers every possible collision candidate.
 
 2. **Spatial Quantization & Hash Mapping**:
    Any continuous 3D world coordinate $\mathbf{P}(x, y, z)$ is discretized into integer cell indices:
@@ -77,7 +77,7 @@ graph TD
     end
 
     subgraph Collision & Placement
-        HashGrid["CSGSpatialHash3D (O(1) Spatial Hash)"]
+        HashGrid["Inline Spatial Hash Grid (O(1) lookup)"]
         Spreader -.-> HashGrid
         Spreader -.-> ShapeDomain["Shape3D (Box/Sphere/Mesh/...)"]
     end
@@ -98,7 +98,7 @@ graph TD
 `CSGSpreader3D` accepts any Godot `Shape3D` as a spatial boundary:
 - Computes world-space bounding boxes.
 - Executes rejection sampling inside custom shapes.
-- Enforces strict minimum distance thresholds via `CSGSpatialHash3D`.
+- Enforces strict minimum distance thresholds via its built-in spatial hash grid.
 - Implements fallback safety limits (`max_placement_attempts`).
 
 ---
@@ -120,7 +120,7 @@ graph TD
 
 - **Strict Static Typing**: Explicit typing on all methods and variables, optimizing engine dispatch.
 - **ClassDB Validation**: Dynamic node instantiation validated via `ClassDB.instantiate()` and type checks.
-- **Atomic Undo/Redo**: Full integration with `EditorUndoRedoManager` for node creation, property editing, re-parenting, and material assignments.
+- **Atomic Undo/Redo**: Full integration with `EditorUndoRedoManager` for node creation, property editing, material assignments, and instance baking (`CSGRepeater3D` / `CSGSpreader3D`).
 - **Editor / Runtime Decoupling**: Tool scripts strictly gated with `Engine.is_editor_hint()` to prevent runtime leaks and scene corruption.
 
 ---
@@ -142,7 +142,7 @@ graph TD
 | `randomize_rot_x/y/z` | `bool` | `false` | Per-axis rotation toggles. |
 | `rotation_variance_x/y/z_deg` | `float` | `0.0` | Random variance angle in degrees (0 = full 360-degree). |
 | `randomize_scale` | `bool` | `false` | Enables scale variance. |
-| `scale_variance` | `float` | `0.2` | Uniform scale variance factor. |
+| `scale_variance` | `float` | `0.0` | Uniform scale variance factor. |
 
 ### 2. CSGSpreader3D Properties
 
@@ -150,14 +150,14 @@ graph TD
 | :--- | :--- | :--- | :--- |
 | `template_node` | `Node3D` | `null` | Target template node to scatter. |
 | `spread_area_3d` | `Shape3D` | `null` | Spatial boundary shape (Box, Sphere, Capsule, Mesh, etc.). |
-| `max_count` | `int` | `50` | Maximum instance limit (hard capped at 200). |
-| `noise_threshold` | `float` | `0.0` | Noise density threshold (0.0 to 1.0). |
-| `seed` | `int` | `1337` | Random seed. |
-| `avoid_overlaps` | `bool` | `true` | Enables Spatial Hash collision prevention. |
-| `min_distance` | `float` | `2.0` | Minimum safe distance between origins. |
-| `max_placement_attempts` | `int` | `30` | Maximum candidate search attempts per instance. |
-| `allow_rotation` | `bool` | `true` | Enables random Y-axis yaw rotation. |
-| `allow_scale` | `bool` | `true` | Enables random scale variance (0.5x to 2.0x). |
+| `max_count` | `int` | `10` | Maximum instance limit (hard capped at 200). |
+| `noise_threshold` | `float` | `0.5` | Noise density threshold (0.0 to 1.0). |
+| `seed` | `int` | `0` | Random seed. |
+| `avoid_overlaps` | `bool` | `false` | Enables Spatial Hash collision prevention. |
+| `min_distance` | `float` | `1.0` | Minimum safe distance between origins. |
+| `max_placement_attempts` | `int` | `100` | Maximum candidate search attempts per instance. |
+| `allow_rotation` | `bool` | `false` | Enables random Y-axis yaw rotation. |
+| `allow_scale` | `bool` | `false` | Enables random scale variance (0.5x to 2.0x). |
 
 ---
 
@@ -171,3 +171,5 @@ Configuration options are registered under `addons/csg_blockout/*`:
 | `addons/csg_blockout/auto_hide` | `bool` | `true` | Auto-hides left sidebar when no CSG node is selected. |
 | `addons/csg_blockout/language_override` | `String` | `"auto"` | Language preference override (`"auto"`, `"en"`, `"zh_CN"`, `"ja"`, `"ko"`, `"es"`, `"pt"`, `"ru"`). |
 | `addons/csg_blockout/material_preset` | `int` (Enum) | `1` (GRID_LIGHT) | Default active grid material preset. |
+| `addons/csg_blockout/default_operation` | `int` (Enum) | `0` (Union) | Default CSG boolean operation for newly created nodes (shared by pie menu & sidebar). |
+| `addons/csg_blockout/custom_material_path` | `String` | `""` | Resource path of the custom material used by the CUSTOM preset (persisted across editor sessions). |

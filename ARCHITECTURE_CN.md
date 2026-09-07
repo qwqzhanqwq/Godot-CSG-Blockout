@@ -26,12 +26,12 @@ $$\text{复杂度} = \mathcal{O}(N^2)$$
 当生成数百个高精度 CSG 几何体时，每秒数十万次的三维距离向量平方运算会导致 Godot 主线程严重卡顿，甚至触发编辑态未响应。
 
 ### 2. 空间哈希网格实现原理
-`CSG_Blockout` 在 `scripts/csg_spatial_hash_3d.gd` 中构建了专用的 3D 空间哈希网格算法：
+`CSG_Blockout` 将 3D 空间哈希网格直接内建于 `CSGSpreader3D` 中，使用以 `Vector3i` 为键的 `Dictionary` 存储：
 
 1. **单元格尺度计算**：
    给定用户设定的最小防重叠间距 $d_{\min}$（`min_distance`），网格单元尺寸定义为：
-   $$\text{Cell Size} = \frac{d_{\min}}{\sqrt{3}}$$
-   此尺寸保证了单个单元格内部不可能容纳两个间距大于等于 $d_{\min}$ 的候选点，极大精简了邻域碰撞可能性。
+   $$\text{Cell Size} = d_{\min}$$
+   任意两个间距小于 $d_{\min}$ 的点，其在单一坐标轴上的差值不可能超过 $d_{\min}$，因此二者所在单元格在每个维度上至多相差 1。这保证了下述 27 邻域检索必定覆盖全部潜在碰撞候选。
 
 2. **空间坐标量化与哈希映射**：
    将任意浮点空间坐标 $\mathbf{P}(x, y, z)$ 离散化为整型网格坐标：
@@ -77,7 +77,7 @@ graph TD
     end
 
     subgraph Collision & Placement
-        HashGrid["CSGSpatialHash3D (O(1) Spatial Hash)"]
+        HashGrid["内建空间哈希网格 (O(1) 查询)"]
         Spreader -.-> HashGrid
         Spreader -.-> ShapeDomain["Shape3D (Box/Sphere/Mesh/...)"]
     end
@@ -98,7 +98,7 @@ graph TD
 `CSGSpreader3D` 支持任意 Godot `Shape3D` 作为散布边界，其工作流包括：
 - 提取碰撞体的世界空间 AABB 边界。
 - 执行内部包含性与随机拒识采样。
-- 联动 `CSGSpatialHash3D` 进行实时防重叠过滤。
+- 联动内建空间哈希网格进行实时防重叠过滤。
 - 支持最大容错尝试机制（`max_placement_attempts`）。
 
 ---
@@ -120,7 +120,7 @@ graph TD
 
 - **全线静态强类型化**：所有脚本启用强类型签名，消除动态查找开销。
 - **ClassDB 安全校验**：所有动态实例化节点均经由 `ClassDB.instantiate()` 或类型断言，杜绝无效类抛错。
-- **原子级 Undo/Redo**：全面对接 Godot 4.7 `EditorUndoRedoManager`，涵盖节点增删、属性变更、层级迁移、材质覆盖。
+- **原子级 Undo/Redo**：全面对接 Godot 4.7 `EditorUndoRedoManager`，涵盖节点增删、属性变更、材质覆盖与实例烘焙（`CSGRepeater3D` / `CSGSpreader3D`）。
 - **编辑器与运行时完全解耦**：所有工具类逻辑严格置于 `Engine.is_editor_hint()` 防护内，杜绝运行时产生幽灵节点或内存泄漏。
 
 ---
@@ -142,7 +142,7 @@ graph TD
 | `randomize_rot_x/y/z` | `bool` | `false` | 各轴向旋转随机开关。 |
 | `rotation_variance_x/y/z_deg` | `float` | `0.0` | 旋转随机浮动角度（设为 0 为 360 度全随机）。 |
 | `randomize_scale` | `bool` | `false` | 启用缩放随机化。 |
-| `scale_variance` | `float` | `0.2` | 等比缩放浮动量。 |
+| `scale_variance` | `float` | `0.0` | 等比缩放浮动量。 |
 
 ### 2. CSGSpreader3D 属性参考
 
@@ -150,14 +150,14 @@ graph TD
 | :--- | :--- | :--- | :--- |
 | `template_node` | `Node3D` | `null` | 需要散布的目标模板节点。 |
 | `spread_area_3d` | `Shape3D` | `null` | 散布空间域形状（Box, Sphere, Capsule 等）。 |
-| `max_count` | `int` | `50` | 散布最大实例上限（硬上限保护为 200）。 |
-| `noise_threshold` | `float` | `0.0` | 噪声概率过滤阈值（0.0 至 1.0）。 |
-| `seed` | `int` | `1337` | 随机种子。 |
-| `avoid_overlaps` | `bool` | `true` | 启用空间哈希碰撞避障检查。 |
-| `min_distance` | `float` | `2.0` | 实例间最小安全间距。 |
-| `max_placement_attempts` | `int` | `30` | 单个实例最大寻位采样尝试次数。 |
-| `allow_rotation` | `bool` | `true` | 允许随机 Y 轴偏航旋转。 |
-| `allow_scale` | `bool` | `true` | 允许随机缩放（0.5x 至 2.0x）。 |
+| `max_count` | `int` | `10` | 散布最大实例上限（硬上限保护为 200）。 |
+| `noise_threshold` | `float` | `0.5` | 噪声概率过滤阈值（0.0 至 1.0）。 |
+| `seed` | `int` | `0` | 随机种子。 |
+| `avoid_overlaps` | `bool` | `false` | 启用空间哈希碰撞避障检查。 |
+| `min_distance` | `float` | `1.0` | 实例间最小安全间距。 |
+| `max_placement_attempts` | `int` | `100` | 单个实例最大寻位采样尝试次数。 |
+| `allow_rotation` | `bool` | `false` | 允许随机 Y 轴偏航旋转。 |
+| `allow_scale` | `bool` | `false` | 允许随机缩放（0.5x 至 2.0x）。 |
 
 ---
 
@@ -171,3 +171,5 @@ graph TD
 | `addons/csg_blockout/auto_hide` | `bool` | `true` | 视口未选中 CSG 节点时自动隐藏左侧边栏。 |
 | `addons/csg_blockout/language_override` | `String` | `"auto"` | 界面语言偏好覆盖 (`"auto"`、`"en"`、`"zh_CN"`、`"ja"`、`"ko"`、`"es"`、`"pt"`、`"ru"`)。 |
 | `addons/csg_blockout/material_preset` | `int` (Enum) | `1` (GRID_LIGHT) | 默认激活的网格材质预设通道。 |
+| `addons/csg_blockout/default_operation` | `int` (Enum) | `0` (并集) | 新建节点的默认 CSG 布尔运算（轮盘菜单与侧栏共享）。 |
+| `addons/csg_blockout/custom_material_path` | `String` | `""` | CUSTOM 预设所引用的自定义材质资源路径（跨会话持久化）。 |
