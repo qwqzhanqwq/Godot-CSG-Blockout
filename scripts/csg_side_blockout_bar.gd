@@ -1,6 +1,10 @@
 @tool
 class_name CSGSideBlockoutBar extends Control
 
+signal request_create_node(node_type: String)
+signal stairs_requested()
+signal ruler_requested()
+
 var config: CsgBlockoutConfig:
 	get: return CsgBlockoutConfig.get_config()
 
@@ -18,8 +22,11 @@ var button_tweens: Dictionary = {}
 var visibility_tween: Tween
 
 func _enter_tree() -> void:
-	add_to_group("csg_blockout_ui")
-	var sel := EditorInterface.get_selection()
+	if not Engine.is_editor_hint():
+		return
+	if not is_in_group(&"csg_blockout_ui"):
+		add_to_group(&"csg_blockout_ui")
+	var sel: EditorSelection = EditorInterface.get_selection()
 	if sel and not sel.selection_changed.is_connected(_on_selection_changed):
 		sel.selection_changed.connect(_on_selection_changed)
 	var cfg := config
@@ -28,7 +35,11 @@ func _enter_tree() -> void:
 	CsgBlockoutI18n.translate_node(self)
 
 func _exit_tree() -> void:
-	var sel := EditorInterface.get_selection()
+	if not Engine.is_editor_hint():
+		return
+	if is_in_group(&"csg_blockout_ui"):
+		remove_from_group(&"csg_blockout_ui")
+	var sel: EditorSelection = EditorInterface.get_selection()
 	if sel and sel.selection_changed.is_connected(_on_selection_changed):
 		sel.selection_changed.disconnect(_on_selection_changed)
 	var cfg := config
@@ -43,8 +54,8 @@ func _on_selection_changed() -> void:
 	if not auto_hide_enabled:
 		_fade_in()
 		return
-	var selection = EditorInterface.get_selection().get_selected_nodes()
-	if selection.any(func(node): return node is CSGShape3D):
+	var selection: Array[Node] = EditorInterface.get_selection().get_selected_nodes()
+	if selection.any(func(node: Node) -> bool: return node is CSGShape3D or node is CSGRuler3D):
 		_fade_in()
 	else:
 		_fade_out()
@@ -101,6 +112,13 @@ func _apply_editor_scale() -> void:
 			if child is Button:
 				child.custom_minimum_size = BASE_MATERIAL_BTN_SIZE * ed_scale
 				child.add_theme_constant_override("icon_max_width", int(round(BASE_MATERIAL_ICON_MAX_WIDTH * ed_scale)))
+
+	var tools_box: Container = find_child("Tools", true, false) as Container
+	if tools_box:
+		for child in tools_box.get_children():
+			if child is Button:
+				child.custom_minimum_size = BASE_BTN_SIZE * ed_scale
+				child.add_theme_constant_override("icon_max_width", int(round(BASE_ICON_MAX_WIDTH * ed_scale)))
 				
 	var lang_btn: OptionButton = find_child("LanguageToggle", true, false) as OptionButton
 	if lang_btn:
@@ -108,7 +126,6 @@ func _apply_editor_scale() -> void:
 		lang_btn.add_theme_font_size_override("font_size", int(round(BASE_LANG_FONT_SIZE * ed_scale)))
 
 func _ready() -> void:
-	add_to_group("csg_blockout_ui")
 	_apply_editor_scale()
 	CsgBlockoutI18n.translate_node(self)
 	
@@ -249,6 +266,17 @@ func _on_sphere_pressed() -> void:
 func _on_torus_pressed() -> void:
 	create_csg(CSGTorus3D)
 
+func _on_stairs_pressed() -> void:
+	stairs_requested.emit()
+	if request_create_node.get_connections().size() > 0:
+		request_create_node.emit("CSGStairs3D")
+	else:
+		create_csg(CSGStairs3D)
+
+func _on_ruler_pressed() -> void:
+	ruler_requested.emit()
+	request_create_node.emit("CSGRuler3D")
+
 func _on_operation_pressed(val := 0) -> void:
 	set_operation(val)
 
@@ -379,6 +407,7 @@ func create_csg(type: Variant) -> void:
 		CSGMesh3D: csg = CSGMesh3D.new()
 		CSGPolygon3D: csg = CSGPolygon3D.new()
 		CSGTorus3D: csg = CSGTorus3D.new()
+		CSGStairs3D: csg = CSGStairs3D.new()
 		_:
 			push_warning(CsgBlockoutI18n.t("WARN_UNSUPPORTED_CSG_TYPE"))
 			return
@@ -439,18 +468,19 @@ func _undoable_remove_csg(parent: Node, csg: CSGShape3D) -> void:
 		parent.remove_child(csg)
 
 func _clear_selection_if(csg: Node) -> void:
-	var selection = EditorInterface.get_selection()
+	var selection: EditorSelection = EditorInterface.get_selection()
 	if selection:
-		var nodes: Array = selection.get_selected_nodes()
+		var nodes: Array[Node] = selection.get_selected_nodes()
 		if csg in nodes:
 			selection.remove_node(csg)
 
 func _select_created_csg(csg: Node) -> void:
 	if not is_instance_valid(csg) or not csg.is_inside_tree():
 		return
-	var selection = EditorInterface.get_selection()
-	selection.clear()
-	selection.add_node(csg)
+	var selection: EditorSelection = EditorInterface.get_selection()
+	if selection:
+		selection.clear()
+		selection.add_node(csg)
 
 func _on_language_toggle_item_selected(index: int) -> void:
 	if config:
@@ -464,4 +494,4 @@ func _on_language_toggle_item_selected(index: int) -> void:
 			6: config.language_override = "pt"
 			7: config.language_override = "ru"
 		config.save_config()
-		get_tree().call_group("csg_blockout_ui", "update_language")
+		get_tree().call_group(&"csg_blockout_ui", &"update_language")

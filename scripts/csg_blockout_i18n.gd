@@ -272,19 +272,159 @@ const TABLE: Dictionary = {
 		"es": "Idioma / Language (Auto / EN / 中文 / 日本語 / 한국어 / Español / Português / Русский)",
 		"pt": "Idioma / Language (Auto / EN / 中文 / 日本語 / 한국어 / Español / Português / Русский)",
 		"ru": "Язык / Language (Auto / EN / 中文 / 日本語 / 한국어 / Español / Português / Русский)"
+	},
+	"STAIRS": {
+		"zh": "楼梯",
+		"zh_CN": "楼梯",
+		"en": "Stairs",
+		"ja": "階段",
+		"ko": "계단",
+		"es": "Escaleras",
+		"pt": "Escadas",
+		"ru": "Лестница"
+	},
+	"RAMP": {
+		"zh": "坡道",
+		"zh_CN": "坡道",
+		"en": "Ramp",
+		"ja": "スロープ",
+		"ko": "경사로",
+		"es": "Rampa",
+		"pt": "Rampa",
+		"ru": "Рампа"
+	},
+	"RULER": {
+		"zh": "关卡标尺",
+		"zh_CN": "关卡标尺",
+		"en": "Level Ruler",
+		"ja": "レベル定規",
+		"ko": "레벨 눈금자",
+		"es": "Regla de nivel",
+		"pt": "Régua de nível",
+		"ru": "Уровневая линейка"
+	},
+	"STEP_COUNT": {
+		"zh": "台阶数",
+		"zh_CN": "台阶数",
+		"en": "Step Count",
+		"ja": "段数",
+		"ko": "계단 수",
+		"es": "Número de escalones",
+		"pt": "Número de degraus",
+		"ru": "Количество ступеней"
+	},
+	"TOTAL_HEIGHT": {
+		"zh": "总高",
+		"zh_CN": "总高",
+		"en": "Total Height",
+		"ja": "全高",
+		"ko": "총 높이",
+		"es": "Altura total",
+		"pt": "Altura total",
+		"ru": "Общая высота"
+	},
+	"TOTAL_DEPTH": {
+		"zh": "总深",
+		"zh_CN": "总深",
+		"en": "Total Depth",
+		"ja": "総奥行き",
+		"ko": "총 깊이",
+		"es": "Profundidad total",
+		"pt": "Profundidade total",
+		"ru": "Общая глубина"
+	},
+	"WIDTH": {
+		"zh": "宽度",
+		"zh_CN": "宽度",
+		"en": "Width",
+		"ja": "幅",
+		"ko": "너비",
+		"es": "Ancho",
+		"pt": "Largura",
+		"ru": "Ширина"
+	},
+	"REACHABLE": {
+		"zh": "机能可达",
+		"zh_CN": "机能可达",
+		"en": "Reachable",
+		"ja": "到達可能",
+		"ko": "도달 가능",
+		"es": "Alcanzable",
+		"pt": "Alcançável",
+		"ru": "Достижимо"
+	},
+	"UNREACHABLE": {
+		"zh": "超出机能",
+		"zh_CN": "超出机能",
+		"en": "Unreachable",
+		"ja": "到達不能",
+		"ko": "도달 불가",
+		"es": "Inalcanzable",
+		"pt": "Inalcançável",
+		"ru": "Недостижимо"
+	},
+	"WARN_STEP_ERGONOMICS": {
+		"zh": "台阶尺寸超出人体工学推荐范围（建议步高 0.15-0.20m，步深 0.25-0.30m）",
+		"zh_CN": "台阶尺寸超出人体工学推荐范围（建议步高 0.15-0.20m，步深 0.25-0.30m）",
+		"en": "Step dimensions outside ergonomic range (recommended rise 0.15-0.20m, run 0.25-0.30m)",
+		"ja": "階段寸法が人間工学の推奨範囲外です (推奨蹴上 0.15-0.20m、踏面 0.25-0.30m)",
+		"ko": "계단 치수가 인체공학적 권장 범위를 벗어났습니다 (권장 높이 0.15-0.20m, 깊이 0.25-0.30m)",
+		"es": "Dimensiones del escalón fuera del rango ergonómico (altura recomendada 0.15-0.20m, huella 0.25-0.30m)",
+		"pt": "Dimensões do degrau fora da faixa ergonômica (altura recomendada 0.15-0.20m, piso 0.25-0.30m)",
+		"ru": "Размеры ступеней вне эргономического диапазона (рекомендуемый подступенок 0.15-0.20м, проступь 0.25-0.30м)"
+	},
+	"ADD_RULER": {
+		"zh": "添加标尺",
+		"zh_CN": "添加标尺",
+		"en": "Add Ruler",
+		"ja": "定規を追加",
+		"ko": "눈금자 추가",
+		"es": "Añadir regla",
+		"pt": "Adicionar régua",
+		"ru": "Добавить линейку"
+	},
+	"ADD_RULER_TOOLTIP": {
+		"zh": "在场景中创建关卡标尺",
+		"zh_CN": "在场景中创建关卡标尺",
+		"en": "Create level ruler in scene",
+		"ja": "シーン内にレベル定規を作成",
+		"ko": "씬에 레벨 눈금자 생성",
+		"es": "Crear regla de nivel en la escena",
+		"pt": "Criar régua de nível na cena",
+		"ru": "Создать уровневую линейку в сцене"
+	},
+	"TOGGLE_RULERS": {
+		"zh": "标尺可见",
+		"zh_CN": "标尺可见",
+		"en": "Rulers Visible",
+		"ja": "定規の表示",
+		"ko": "눈금자 표시",
+		"es": "Reglas visibles",
+		"pt": "Réguas visíveis",
+		"ru": "Видимость линеек"
+	},
+	"TOGGLE_RULERS_TOOLTIP": {
+		"zh": "显示/隐藏场景中全部标尺",
+		"zh_CN": "显示/隐藏场景中全部标尺",
+		"en": "Show/hide all level rulers in scene",
+		"ja": "シーン内のすべての定規を表示/非表示",
+		"ko": "씬의 모든 눈금자 표시/숨기기",
+		"es": "Mostrar/ocultar todas las reglas en la escena",
+		"pt": "Mostrar/ocultar todas as réguas na cena",
+		"ru": "Показать/скрыть все линейки в сцене"
 	}
 }
 
 static var _reverse_initialized: bool = false
-static var _reverse_map: Dictionary = {}
+static var _reverse_map: Dictionary[String, String] = {}
 
 static func _ensure_reverse_map() -> void:
 	if _reverse_initialized:
 		return
 	_reverse_initialized = true
-	for key in TABLE:
+	for key: String in TABLE:
 		var entry: Dictionary = TABLE[key]
-		for lang in entry:
+		for lang: String in entry:
 			var text: String = entry[lang]
 			_reverse_map[text] = key
 		_reverse_map[key] = key
@@ -304,14 +444,33 @@ static func _ensure_reverse_map() -> void:
 	_reverse_map["APPLY_TO_SELECTED"] = "APPLY_MATERIAL_TO_SELECTED"
 	_reverse_map["Refresh"] = "REFRESH"
 	_reverse_map["Bake"] = "BAKE"
+	_reverse_map["AddRuler"] = "ADD_RULER"
+	_reverse_map["ADD_RULER"] = "ADD_RULER"
+	_reverse_map["ToggleRulers"] = "TOGGLE_RULERS"
+	_reverse_map["TOGGLE_RULERS"] = "TOGGLE_RULERS"
 	_reverse_map["创建 "] = "CREATE_NODE"
 	_reverse_map["Create "] = "CREATE_NODE"
 	_reverse_map["Language / 语言"] = "LANGUAGE_TOOLTIP"
+	_reverse_map["CSGBox3D"] = "BOX"
+	_reverse_map["CSGCylinder3D"] = "CYLINDER"
+	_reverse_map["CSGMesh3D"] = "MESH"
+	_reverse_map["CSGPolygon3D"] = "POLYGON"
+	_reverse_map["CSGSphere3D"] = "SPHERE"
+	_reverse_map["CSGTorus3D"] = "TORUS"
+	_reverse_map["CSGRepeater3D"] = "REPEATER"
+	_reverse_map["CSGSpreader3D"] = "SPREADER"
+	_reverse_map["CSGStairs3D"] = "STAIRS"
+	_reverse_map["CSGStairs"] = "STAIRS"
+	_reverse_map["Stairs"] = "STAIRS"
+	_reverse_map["CSGRuler3D"] = "RULER"
+	_reverse_map["CSGRuler"] = "RULER"
+	_reverse_map["Ruler"] = "RULER"
+	_reverse_map["Ramp"] = "RAMP"
 
 static func _normalize_locale(loc: String) -> String:
 	var l := loc.to_lower()
 	if l.begins_with("zh"):
-		return "zh"
+		return "zh_CN"
 	elif l.begins_with("ja"):
 		return "ja"
 	elif l.begins_with("ko"):
@@ -325,37 +484,37 @@ static func _normalize_locale(loc: String) -> String:
 	return "en"
 
 static func get_locale() -> String:
-	var config = CsgBlockoutConfig.get_config()
-	if config:
+	var config: CsgBlockoutConfig = CsgBlockoutConfig.get_config()
+	if config != null:
 		var override_lang: String = config.language_override
-		if override_lang != "" and override_lang != "auto":
+		if not override_lang.is_empty() and override_lang != "auto":
 			return _normalize_locale(override_lang)
 			
 	# 1. Safely check EditorInterface editor settings in editor hint
 	if Engine.is_editor_hint():
-		var editor_settings = EditorInterface.get_editor_settings()
-		if editor_settings:
-			var lang_setting = editor_settings.get_setting("interface/editor/editor_language")
+		var editor_settings: EditorSettings = EditorInterface.get_editor_settings()
+		if editor_settings != null:
+			var lang_setting: Variant = editor_settings.get_setting("interface/editor/editor_language")
 			if lang_setting != null:
 				var s := String(lang_setting).strip_edges()
 				if not s.is_empty() and s != "default" and s != "auto":
 					return _normalize_locale(s)
 					
 	# 2. Check TranslationServer tool locale
-	var tool_locale := TranslationServer.get_tool_locale()
+	var tool_locale: String = TranslationServer.get_tool_locale()
 	if not tool_locale.is_empty() and tool_locale != "en":
 		return _normalize_locale(tool_locale)
 		
-	var general_locale := TranslationServer.get_locale()
+	var general_locale: String = TranslationServer.get_locale()
 	if not general_locale.is_empty() and general_locale != "en":
 		return _normalize_locale(general_locale)
 		
 	# 3. Check OS locale language
-	var os_locale := OS.get_locale_language()
+	var os_locale: String = OS.get_locale_language()
 	if not os_locale.is_empty():
 		return _normalize_locale(os_locale)
 		
-	var os_full := OS.get_locale()
+	var os_full: String = OS.get_locale()
 	if not os_full.is_empty():
 		return _normalize_locale(os_full)
 		
@@ -365,12 +524,19 @@ static func t(key_or_text: String) -> String:
 	_ensure_reverse_map()
 	var canonical_key: String = _reverse_map.get(key_or_text, key_or_text)
 	if TABLE.has(canonical_key):
-		var lang = get_locale()
-		return TABLE[canonical_key].get(lang, TABLE[canonical_key].get("en", key_or_text))
+		var lang: String = get_locale()
+		var entry: Dictionary = TABLE[canonical_key]
+		if entry.has(lang):
+			return entry[lang]
+		if (lang == "zh" or lang == "zh_CN") and entry.has("zh_CN"):
+			return entry["zh_CN"]
+		if (lang == "zh" or lang == "zh_CN") and entry.has("zh"):
+			return entry["zh"]
+		return entry.get("en", key_or_text)
 	return key_or_text
 
-static func tf(key_or_text: String, args: Array = []) -> String:
-	var tmpl := t(key_or_text)
+static func tf(key_or_text: String, args: Array[Variant] = []) -> String:
+	var tmpl: String = t(key_or_text)
 	if args.is_empty():
 		return tmpl
 	return tmpl % args
@@ -387,7 +553,7 @@ static func translate_node(node: Node) -> void:
 		node.set("auto_translate", false)
 		
 	if node is OptionButton or node.name == "LanguageToggle":
-		for child in node.get_children():
+		for child: Node in node.get_children():
 			translate_node(child)
 		return
 		
@@ -395,7 +561,7 @@ static func translate_node(node: Node) -> void:
 	
 	if node is Control:
 		if not node.has_meta("i18n_tooltip_key"):
-			var key := ""
+			var key: String = ""
 			if node.tooltip_text != "":
 				key = _reverse_map.get(node.tooltip_text, "")
 			if key == "":
@@ -413,7 +579,7 @@ static func translate_node(node: Node) -> void:
 	if node is Button or node is Label:
 		if "text" in node and typeof(node.get("text")) == TYPE_STRING and node.get("text") != "":
 			if not node.has_meta("i18n_text_key"):
-				var key := _reverse_map.get(node.get("text"), "")
+				var key: String = _reverse_map.get(node.get("text"), "")
 				if key == "":
 					var node_name_str := String(node.name)
 					key = _reverse_map.get(node_name_str, "")
@@ -425,5 +591,5 @@ static func translate_node(node: Node) -> void:
 			if node.has_meta("i18n_text_key"):
 				node.set("text", t(node.get_meta("i18n_text_key")))
 				
-	for child in node.get_children():
+	for child: Node in node.get_children():
 		translate_node(child)

@@ -16,6 +16,8 @@
 [ext_resource type="Texture2D" path="res://addons/csg_blockout/res/icons/grid_orange.svg" id="14_orange"]
 [ext_resource type="Texture2D" path="res://addons/csg_blockout/res/icons/material_none.svg" id="15_none"]
 [ext_resource type="Texture2D" path="res://addons/csg_blockout/res/icons/apply_material.svg" id="16_apply"]
+[ext_resource type="Texture2D" path="res://addons/csg_blockout/res/icons/stairs.svg" id="17_stairs"]
+[ext_resource type="Texture2D" path="res://addons/csg_blockout/res/icons/ruler.svg" id="18_ruler"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_2ipgb"]
 
@@ -102,6 +104,15 @@ layout_mode = 2
 tooltip_text = "圆环"
 theme_override_constants/icon_max_width = 24
 icon = ExtResource("7_6hoxg")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Stairs" type="Button" parent="ScrollContainer/HBoxContainer/CSG"]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+tooltip_text = "楼梯"
+theme_override_constants/icon_max_width = 24
+icon = ExtResource("17_stairs")
 icon_alignment = 1
 expand_icon = true
 
@@ -210,6 +221,19 @@ icon = ExtResource("16_apply")
 icon_alignment = 1
 expand_icon = true
 
+[node name="Tools" type="VBoxContainer" parent="ScrollContainer/HBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Ruler" type="Button" parent="ScrollContainer/HBoxContainer/Tools"]
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+tooltip_text = "关卡标尺"
+theme_override_constants/icon_max_width = 24
+icon = ExtResource("18_ruler")
+icon_alignment = 1
+expand_icon = true
+
 [node name="HSeparator" type="HSeparator" parent="ScrollContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -231,6 +255,7 @@ fit_to_longest_item = false
 [connection signal="pressed" from="ScrollContainer/HBoxContainer/CSG/Polygon" to="." method="_on_polygon_pressed"]
 [connection signal="pressed" from="ScrollContainer/HBoxContainer/CSG/Sphere" to="." method="_on_sphere_pressed"]
 [connection signal="pressed" from="ScrollContainer/HBoxContainer/CSG/Torus" to="." method="_on_torus_pressed"]
+[connection signal="pressed" from="ScrollContainer/HBoxContainer/CSG/Stairs" to="." method="_on_stairs_pressed"]
 [connection signal="pressed" from="ScrollContainer/HBoxContainer/Operation/Union" to="." method="_on_operation_pressed" binds= [0]]
 [connection signal="pressed" from="ScrollContainer/HBoxContainer/Operation/Intersection" to="." method="_on_operation_pressed" binds= [1]]
 [connection signal="pressed" from="ScrollContainer/HBoxContainer/Operation/Subtraction" to="." method="_on_operation_pressed" binds= [2]]
@@ -240,4 +265,5 @@ fit_to_longest_item = false
 [connection signal="pressed" from="ScrollContainer/HBoxContainer/Material/PresetNone" to="." method="_on_preset_none_pressed"]
 [connection signal="pressed" from="ScrollContainer/HBoxContainer/Material/MaterialPicker" to="." method="_on_material_picker_pressed"]
 [connection signal="pressed" from="ScrollContainer/HBoxContainer/Material/ApplyToSelected" to="." method="_on_apply_to_selected_pressed"]
+[connection signal="pressed" from="ScrollContainer/HBoxContainer/Tools/Ruler" to="." method="_on_ruler_pressed"]
 [connection signal="item_selected" from="ScrollContainer/HBoxContainer/LanguageToggle" to="." method="_on_language_toggle_item_selected"]

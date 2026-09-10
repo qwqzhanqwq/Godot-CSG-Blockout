@@ -159,6 +159,35 @@ graph TD
 | `allow_rotation` | `bool` | `false` | 允许随机 Y 轴偏航旋转。 |
 | `allow_scale` | `bool` | `false` | 允许随机缩放（0.5x 至 2.0x）。 |
 
+### 3. CSGStairs3D 属性参考
+
+| 属性名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `step_count` | `int` | `8` | 楼梯踏步阶数（范围 1 至 100）。 |
+| `total_height` | `float` | `2.0` | 楼梯总高度（米，必须大于 0）。 |
+| `total_depth` | `float` | `3.0` | 楼梯纵深进深（米，沿 -Z 轴延伸，必须大于 0）。 |
+| `width` | `float` | `1.5` | 楼梯踏步横向宽度（米，沿 X 轴挤出）。 |
+| `is_ramp` | `bool` | `false` | 平滑坡道模式开关。开启后生成三角斜坡截面，用于物理碰撞与手感调试。 |
+| `enable_ergonomic_warning` | `bool` | `true` | 人体工学步高/步深安全校验警告提示开关。 |
+| `step_height` | `float` | `0.25` | (只读) 单阶踏步高度（`total_height / step_count`）。 |
+| `step_depth` | `float` | `0.375` | (只读) 单阶踏步进深（`total_depth / step_count`）。 |
+| `ergonomic_status` | `String` | `""` | (只读) 人体工学达标状态诊断文案。 |
+
+### 4. CSGRuler3D 属性参考
+
+| 属性名 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `target_point` | `Vector3` | `Vector3(0, 0, -3)` | 标尺终点相对于起点的局部 3D 偏移坐标。 |
+| `use_global_metrics` | `bool` | `true` | 是否采用 ProjectSettings 全局角色机能基准；关闭后使用本地覆盖参数。 |
+| `character_height` | `float` | `1.8` | 角色站立视线与身高基准线（米，局部覆盖值）。 |
+| `single_jump_height` | `float` | `1.5` | 角色单跳垂直极限达标基准（米，局部覆盖值）。 |
+| `sprint_jump_distance` | `float` | `4.0` | 角色冲刺跳水平跨越间距基准（米，局部覆盖值）。 |
+| `total_distance` | `float` | `3.0` | (只读) 起点至终点的三维直线空间总距离（米）。 |
+| `horizontal_distance` | `float` | `3.0` | (只读) 水平 XZ 平面投影跨度距离（米）。 |
+| `vertical_delta` | `float` | `0.0` | (只读) 终点相对于起点的垂直落差高度（米）。 |
+| `is_jump_reachable` | `bool` | `true` | (只读) 当前跨度与落差是否在角色跳跃机能范围内。 |
+| `reachability_status` | `String` | `"机能可达"` | (只读) 多语言可达性判定状态文案（"机能可达" / "超出机能"）。 |
+
 ---
 
 ## 六、 ProjectSettings 配置规范
@@ -173,3 +202,6 @@ graph TD
 | `addons/csg_blockout/material_preset` | `int` (Enum) | `1` (GRID_LIGHT) | 默认激活的网格材质预设通道。 |
 | `addons/csg_blockout/default_operation` | `int` (Enum) | `0` (并集) | 新建节点的默认 CSG 布尔运算（轮盘菜单与侧栏共享）。 |
 | `addons/csg_blockout/custom_material_path` | `String` | `""` | CUSTOM 预设所引用的自定义材质资源路径（跨会话持久化）。 |
+| `addons/csg_blockout/player_metrics/character_height` | `float` | `1.8` | 角色站立高度基准（米），供标尺视线高度参考。 |
+| `addons/csg_blockout/player_metrics/single_jump_height` | `float` | `1.5` | 角色单跳垂直极限落差基准（米），供标尺判定垂直可达性。 |
+| `addons/csg_blockout/player_metrics/sprint_jump_distance` | `float` | `4.0` | 角色冲刺跳水平跨越基准（米），供标尺判定水平跨度可达性。 |

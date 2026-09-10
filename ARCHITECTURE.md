@@ -159,6 +159,35 @@ graph TD
 | `allow_rotation` | `bool` | `false` | Enables random Y-axis yaw rotation. |
 | `allow_scale` | `bool` | `false` | Enables random scale variance (0.5x to 2.0x). |
 
+### 3. CSGStairs3D Properties
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `step_count` | `int` | `8` | Total number of stair steps (range 1 to 100). |
+| `total_height` | `float` | `2.0` | Total stair rise height in meters (must be > 0). |
+| `total_depth` | `float` | `3.0` | Total stair run depth along -Z axis in meters (must be > 0). |
+| `width` | `float` | `1.5` | Stair width along X axis in meters. |
+| `is_ramp` | `bool` | `false` | Smooth ramp mode toggle. Replaces stepped profile with a triangle slope for physics/gameplay prototyping. |
+| `enable_ergonomic_warning` | `bool` | `true` | Enables ergonomic step ratio validation and inspector warnings. |
+| `step_height` | `float` | `0.25` | (Read-only) Single step rise height (`total_height / step_count`). |
+| `step_depth` | `float` | `0.375` | (Read-only) Single step run depth (`total_depth / step_count`). |
+| `ergonomic_status` | `String` | `""` | (Read-only) Ergonomic evaluation status text. |
+
+### 4. CSGRuler3D Properties
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `target_point` | `Vector3` | `Vector3(0, 0, -3)` | Endpoint coordinate relative to ruler origin in local 3D space. |
+| `use_global_metrics` | `bool` | `true` | Whether to evaluate reachability using global ProjectSettings metrics or local overrides. |
+| `character_height` | `float` | `1.8` | Standing eye-height and clearance baseline in meters (local override). |
+| `single_jump_height` | `float` | `1.5` | Single vertical jump reach threshold in meters (local override). |
+| `sprint_jump_distance` | `float` | `4.0` | Sprint jump horizontal span reach threshold in meters (local override). |
+| `total_distance` | `float` | `3.0` | (Read-only) Euclidean 3D distance between origin and target point in meters. |
+| `horizontal_distance` | `float` | `3.0` | (Read-only) Projected 2D horizontal span across XZ plane in meters. |
+| `vertical_delta` | `float` | `0.0` | (Read-only) Vertical height difference along Y axis in meters. |
+| `is_jump_reachable` | `bool` | `true` | (Read-only) Whether target point is within jump clearance bounds. |
+| `reachability_status` | `String` | `"Reachable"` | (Read-only) Localized reachability status text ("Reachable" / "Unreachable"). |
+
 ---
 
 ## 6. ProjectSettings Specification
@@ -173,3 +202,6 @@ Configuration options are registered under `addons/csg_blockout/*`:
 | `addons/csg_blockout/material_preset` | `int` (Enum) | `1` (GRID_LIGHT) | Default active grid material preset. |
 | `addons/csg_blockout/default_operation` | `int` (Enum) | `0` (Union) | Default CSG boolean operation for newly created nodes (shared by pie menu & sidebar). |
 | `addons/csg_blockout/custom_material_path` | `String` | `""` | Resource path of the custom material used by the CUSTOM preset (persisted across editor sessions). |
+| `addons/csg_blockout/player_metrics/character_height` | `float` | `1.8` | Standing character height baseline in meters (ruler eye-level clearance reference). |
+| `addons/csg_blockout/player_metrics/single_jump_height` | `float` | `1.5` | Single jump maximum vertical reach threshold in meters for reachability evaluation. |
+| `addons/csg_blockout/player_metrics/sprint_jump_distance` | `float` | `4.0` | Sprint jump horizontal span reach threshold in meters for reachability evaluation. |

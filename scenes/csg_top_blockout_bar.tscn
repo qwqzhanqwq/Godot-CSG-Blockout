@@ -1,22 +1,50 @@
 [gd_scene format=3 uid="uid://dgldacs362p7g"]
 
 [ext_resource type="Script" uid="uid://dk6dt8fk1s43s" path="res://addons/csg_blockout/scripts/csg_top_blockout_bar.gd" id="1_154hl"]
+[ext_resource type="Texture2D" path="res://addons/csg_blockout/res/icons/ruler.svg" id="2_ruler"]
 
 [node name="HBoxContainer" type="HBoxContainer"]
-visible = false
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("1_154hl")
 
-[node name="Refresh" type="Button" parent="."]
+[node name="RulerTools" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="AddRuler" type="Button" parent="RulerTools"]
+layout_mode = 2
+tooltip_text = "在场景中创建关卡标尺"
+text = "添加标尺"
+icon = ExtResource("2_ruler")
+flat = true
+
+[node name="ToggleRulers" type="Button" parent="RulerTools"]
+layout_mode = 2
+tooltip_text = "显示/隐藏场景中全部标尺"
+toggle_mode = true
+button_pressed = true
+text = "标尺可见"
+flat = true
+
+[node name="VSeparator" type="VSeparator" parent="."]
+visible = false
+layout_mode = 2
+
+[node name="RepeaterTools" type="HBoxContainer" parent="."]
+visible = false
+layout_mode = 2
+
+[node name="Refresh" type="Button" parent="RepeaterTools"]
 layout_mode = 2
 text = "刷新"
 flat = true
 
-[node name="Bake" type="Button" parent="."]
+[node name="Bake" type="Button" parent="RepeaterTools"]
 layout_mode = 2
 text = "烘焙"
 flat = true
 
-[connection signal="pressed" from="Refresh" to="." method="_on_refresh_pressed"]
-[connection signal="pressed" from="Bake" to="." method="_on_bake_pressed"]
+[connection signal="pressed" from="RulerTools/AddRuler" to="." method="_on_add_ruler_pressed"]
+[connection signal="toggled" from="RulerTools/ToggleRulers" to="." method="_on_toggle_rulers_toggled"]
+[connection signal="pressed" from="RepeaterTools/Refresh" to="." method="_on_refresh_pressed"]
+[connection signal="pressed" from="RepeaterTools/Bake" to="." method="_on_bake_pressed"]
