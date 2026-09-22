@@ -75,7 +75,11 @@ func _forward_3d_gui_input(viewport_camera: Camera3D, event: InputEvent) -> int:
 	if event is InputEventKey and event.keycode == KEY_A and not event.echo and _is_action_key_held(event):
 		if event.pressed:
 			if not is_instance_valid(pie_menu):
-				_open_pie_menu()
+				# Prevent menu from opening during viewport fly navigation
+				if not Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+					_open_pie_menu()
+				else:
+					return EditorPlugin.AFTER_GUI_INPUT_PASS
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		else:
 			if is_instance_valid(pie_menu):
