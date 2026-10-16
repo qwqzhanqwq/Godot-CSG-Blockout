@@ -6,7 +6,10 @@ extends CsgBlockoutTool
 ## normal. The opposite face stays put, axis-aligned faces land on grid lines, and the
 ## drag is one undo step. No modifier key, so Shift stays Godot's multi-select.
 ## Supported: CSGBox3D (6 faces), CSGCylinder3D (caps -> height, side -> radius),
-## CSGStairs3D (top -> height, front -> depth, sides -> width).
+## CSGStairs3D (top -> height, front -> depth, sides -> width), and rooms from the Room
+## tool (selected as a whole or by their Shell), which resize as rooms: the walls keep
+## their thickness (see CsgBlockoutRoom). With a room's Shell selected, Godot's own size
+## handles on its far faces resize the room this way too.
 
 ## Mouse travel (px) before a press on a handle becomes a drag.
 const DRAG_THRESHOLD: float = 3.0
@@ -65,18 +68,26 @@ func input(camera: Camera3D, event: InputEvent) -> int:
 
 ## Handles of the selected shapes' camera-facing faces:
 ## [{"node", "face", "point" (world anchor), "screen", "dir" (screen arrow direction)}].
-func _handles(camera: Camera3D) -> Array[Dictionary]:
+## A selected room gets the handles of its Shell. `far_room_faces` adds the faces
+## turned away from the camera of a selected room Shell (no arrow: "dir" is zero),
+## where Godot draws its own size handles.
+func _handles(camera: Camera3D, far_room_faces: bool = false) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	if camera == null:
 		return out
 	var count: int = 0
+	var seen: Array[Node] = []
 	for n: Node in EditorInterface.get_selection().get_selected_nodes():
 		if count >= MAX_HANDLE_NODES:
 			break
-		if not supports(n) or not (n as Node3D).is_visible_in_tree():
+		var room: CSGCombiner3D = CsgBlockoutRoom.room_of(n)
+		var target: Node = CsgBlockoutRoom.shell_of(room) if room != null else n
+		if target in seen or not supports(target) or not (target as Node3D).is_visible_in_tree():
 			continue
+		seen.append(target)
 		count += 1
-		var node: Node3D = n as Node3D
+		var node: Node3D = target as Node3D
+		var far_faces: bool = far_room_faces and room != null and n == target
 		var xf: Transform3D = node.global_transform
 		for face: Dictionary in CsgBlockoutShapeInfo.push_faces(node):
 			var normal: Vector3 = (xf.basis * (face["normal"] as Vector3)).normalized()
@@ -90,7 +101,11 @@ func _handles(camera: Camera3D) -> Array[Dictionary]:
 					continue
 				normal = to_cam.normalized()
 				anchor = xf.origin + normal * ((node as CSGCylinder3D).radius * xf.basis.x.length())
-			if normal.dot(camera.global_position - anchor) <= 0.0 or camera.is_position_behind(anchor):
+			if camera.is_position_behind(anchor):
+				continue
+			if normal.dot(camera.global_position - anchor) <= 0.0:
+				if far_faces:
+					out.append({"node": node, "face": face, "point": anchor, "screen": camera.unproject_position(anchor), "dir": Vector2.ZERO})
 				continue
 			var screen: Vector2 = camera.unproject_position(anchor)
 			var dir: Vector2 = Vector2.ZERO
@@ -106,7 +121,7 @@ func _pick(camera: Camera3D, pos: Vector2) -> Dictionary:
 	var scale: float = EditorInterface.get_editor_scale()
 	var best: Dictionary = {}
 	var best_d: float = PICK_RADIUS * scale
-	for h: Dictionary in _handles(camera):
+	for h: Dictionary in _handles(camera, true):
 		var screen: Vector2 = h["screen"]
 		var tip: Vector2 = screen + (h["dir"] as Vector2) * ARROW_LENGTH * scale
 		var d: float = Geometry2D.get_closest_point_to_segment(p, screen, tip).distance_to(p)
@@ -148,6 +163,9 @@ func _begin(handle: Dictionary, pos: Vector2) -> void:
 		"delta": 0.0,
 		"moved": false,
 	}
+	var room: CSGCombiner3D = CsgBlockoutRoom.room_of(node)
+	if room != null:
+		_drag["room"] = CsgBlockoutRoom.Resize.new(room, face["axis"])
 	_hover = handle
 
 static func _props_for(n: Node3D) -> Array[StringName]:
@@ -211,7 +229,10 @@ func _apply(delta: float) -> float:
 	var axis_scale: float = maxf(xf.basis[axis].length(), 0.0001)
 	var axis_dir: Vector3 = xf.basis[axis].normalized()
 	var applied: float = delta
-	if node is CSGBox3D:
+	if _drag.has("room"):
+		var grow: Vector2 = (_drag["room"] as CsgBlockoutRoom.Resize).apply(delta if int(face["sign"]) > 0 else 0.0, delta if int(face["sign"]) < 0 else 0.0)
+		applied = grow.x + grow.y
+	elif node is CSGBox3D:
 		var size: Vector3 = start[&"size"]
 		var new_len: float = maxf(size[axis] + delta / axis_scale, MIN_EXTENT)
 		applied = (new_len - size[axis]) * axis_scale
@@ -254,6 +275,11 @@ func _finish() -> void:
 	var node: Node3D = _drag["node"]
 	if not _drag["moved"]:
 		# Clicked a handle without dragging: nothing to do.
+		_drag = {}
+		manager.refresh()
+		return
+	if _drag.has("room"):
+		(_drag["room"] as CsgBlockoutRoom.Resize).commit(CsgBlockoutI18n.t("PUSH_FACE_ACTION"))
 		_drag = {}
 		manager.refresh()
 		return

@@ -28,7 +28,7 @@
 
 | 目录 | 内容 |
 | :--- | :--- |
-| `scripts/core/` | 公共基础：可撤销的场景修改（`CsgBlockoutSceneOps`）、针对 CSG 的射线求交（`CsgBlockoutRaycast`）、栅格（`CsgBlockoutGrid`）、幽灵预览（`CsgBlockoutGhost`）、图元几何辅助（`CsgBlockoutShapeInfo`）、节点创建（`CsgBlockoutNodeFactory`）、选区辅助、可重绑的快捷键（`CsgBlockoutShortcuts`）以及引擎版本兼容层（`CsgBlockoutCompat`）。 |
+| `scripts/core/` | 公共基础：可撤销的场景修改（`CsgBlockoutSceneOps`）、针对 CSG 的射线求交（`CsgBlockoutRaycast`）、栅格（`CsgBlockoutGrid`）、幽灵预览（`CsgBlockoutGhost`）、图元几何辅助（`CsgBlockoutShapeInfo`）、保持墙厚的房间缩放（`CsgBlockoutRoom`）、节点创建（`CsgBlockoutNodeFactory`）、选区辅助、可重绑的快捷键（`CsgBlockoutShortcuts`）以及引擎版本兼容层（`CsgBlockoutCompat`）。 |
 | `scripts/tools/` | 视口工具：工具管理器、绘制（方块/房间）、开洞（门/窗）、面推拉、沿轴复制、键盘变换、从这里试玩。 |
 | `scripts/bake/` | 冻结/解冻、烘焙管线（碰撞、UV2、遮挡体、LOD）、冻结节点的 Inspector 面板、导出插件、MeshLibrary 导出与 glTF 往返。 |
 | `scripts/inspector/` | `CSGMesh3D` 的流形检查及其 Inspector 面板。 |

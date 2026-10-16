@@ -43,7 +43,7 @@ A tool does one thing and hands control back: draw one box or cut one door, and 
 2. Release: a room is built with the height from Project Settings (`addons/csg_blockout/room/height`), a box with the height you gave your last box (1 m to start with).
 3. A click without dragging just selects what's under the cursor and leaves the tool.
 
-A **room** is its own `CSGCombiner3D` holding a shell box and a hollow cut out of it. Wall and floor thickness, and whether the top is open, are in Project Settings under `addons/csg_blockout/room`.
+A **room** is its own `CSGCombiner3D` holding a shell box and a hollow cut out of it. Wall and floor thickness, and whether the top is open, are in Project Settings under `addons/csg_blockout/room`. To resize a room, select it (it is selected right after drawing) or click one of its walls, then drag a face arrow or type a size: walls and floor keep their thickness, an open top stays open, and doors and windows in a moved wall move with it.
 
 A box drawn on a CSG surface joins that surface's tree (so it merges with it); drawn on empty ground it goes to the scene root. Hold `Shift` while drawing to make it a separate object anyway.
 
@@ -52,7 +52,7 @@ A box drawn on a CSG surface joins that surface's tree (so it merges with it); d
 - For any other opening, use **Cut**: drag the outline on a surface and release, and it cuts straight through. The cut lands in the CSG tree it was drawn on; a lone wall gets wrapped into a new combiner automatically.
 
 ### Shape and arrange
-- **Face arrows**: a selected box, cylinder or stairs shows an arrow on every face that points toward you. Drag one to push or pull that face; the opposite face stays put and the face lands on the grid. One undo step per drag.
+- **Face arrows**: a selected box, cylinder, stairs or room shows an arrow on every face that points toward you. Drag one to push or pull that face; the opposite face stays put and the face lands on the grid. One undo step per drag.
 - **Typed sizes**: the width, height and depth labels of a selected shape are clickable. Click one, type a size (`2.5`, `2,5` and `2.5 m` all work) and press `Enter`; the bottom stays where it is.
 - **Whole tree**: a click selects the primitive under the cursor; a double-click selects the whole CSG tree it belongs to.
 - **Operations**: the palette's union, subtraction and intersection buttons change the selected shapes and show which operation they have. There is no hidden "current operation": new shapes are always unions.

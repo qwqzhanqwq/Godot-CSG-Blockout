@@ -28,7 +28,7 @@ This document is for developers who want to know how `CSG_Blockout` works inside
 
 | Folder | Contents |
 | :--- | :--- |
-| `scripts/core/` | Shared building blocks: undoable scene edits (`CsgBlockoutSceneOps`), raycasting against CSG (`CsgBlockoutRaycast`), the grid (`CsgBlockoutGrid`), ghost previews (`CsgBlockoutGhost`), primitive geometry helpers (`CsgBlockoutShapeInfo`), node creation (`CsgBlockoutNodeFactory`), selection helpers, rebindable shortcuts (`CsgBlockoutShortcuts`) and the engine-version layer (`CsgBlockoutCompat`). |
+| `scripts/core/` | Shared building blocks: undoable scene edits (`CsgBlockoutSceneOps`), raycasting against CSG (`CsgBlockoutRaycast`), the grid (`CsgBlockoutGrid`), ghost previews (`CsgBlockoutGhost`), primitive geometry helpers (`CsgBlockoutShapeInfo`), room resizing that keeps the walls (`CsgBlockoutRoom`), node creation (`CsgBlockoutNodeFactory`), selection helpers, rebindable shortcuts (`CsgBlockoutShortcuts`) and the engine-version layer (`CsgBlockoutCompat`). |
 | `scripts/tools/` | Viewport tools: the tool manager, draw (box/room), openings (door/window), face push/pull, duplicate along an axis, keyboard transforms, Play From Here. |
 | `scripts/bake/` | Freeze/unfreeze, the bake pipeline (collision, UV2, occluder, LODs), the frozen-node Inspector panel, the export plugin, MeshLibrary export and the glTF round trip. |
 | `scripts/inspector/` | The `CSGMesh3D` manifold check and its Inspector panel. |

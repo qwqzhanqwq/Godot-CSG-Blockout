@@ -86,7 +86,7 @@ Every tool does one thing and hands control back, and the card at the top of the
 ### Build
 - **Draw in one drag**: drag a base on any surface or the ground and release; the box gets the height you used last. **Cut** drags an opening into a surface and cuts through it; the cut lands in the CSG tree it was drawn on (a lone wall is wrapped into a combiner automatically). **Room** makes a hollow shell with configurable wall thickness.
 - **Doors and windows**: click a wall to cut a doorway or a window at sill height, with an optional frame (`F`). Sizes are in Project Settings.
-- **Face arrows and typed sizes**: a selected box, cylinder or stairs shows an arrow on each face toward you; drag it to push or pull that face while the opposite one stays put. Click a dimension label to type an exact size.
+- **Face arrows and typed sizes**: a selected box, cylinder, stairs or room shows an arrow on each face toward you; drag it to push or pull that face while the opposite one stays put. Click a dimension label to type an exact size. Rooms keep their wall thickness, and doors and windows move with their wall.
 - **Grid and snapping**: one grid (0.125–8 m) for every tool, keyboard nudging, rotation in 15° steps, drop to the surface below, duplicate along an axis (`Ctrl + Shift + D`).
 - **Tool palette and pie menu**: the palette on the left of the viewport is always there, with named tools, shapes, the operation of the selected shapes, materials and helpers. `Shift + A` opens the same tools as a pie menu at the cursor. Double-click a shape to select its whole CSG tree.
 - **Stairs and ramps** (`CSGStairs3D`): set height, depth, width and step count, or switch to a smooth ramp. Warns when steps are uncomfortable.

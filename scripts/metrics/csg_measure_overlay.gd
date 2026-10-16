@@ -3,8 +3,9 @@ class_name CsgBlockoutMeasureOverlay
 extends CsgBlockoutTool
 ## Passive overlay: dimension lines with W/H/D labels (meters) on the selected CSG
 ## shapes and frozen blockout, drawn along the bottom edges nearest the camera.
-## The labels of boxes, cylinders and stairs are editable: click one, type a size,
-## Enter (Esc cancels). Height grows from the bottom, width and depth from the center.
+## The labels of boxes, cylinders, stairs and rooms are editable: click one, type a
+## size, Enter (Esc cancels). Height grows from the bottom, width and depth from the
+## center; rooms keep their wall thickness.
 ## Toggled from the "⋯" menu; the setting is stored per user.
 
 const MAX_LABELED: int = 8
@@ -89,11 +90,18 @@ func draw_overlay(overlay: Control, camera: Camera3D) -> void:
 	# Labels step aside from the face handles too, so both stay clickable.
 	var placed: Array[Rect2] = _handle_rects(camera)
 	var count: int = 0
+	var seen: Array[Node] = []
 	for n: Node in EditorInterface.get_selection().get_selected_nodes():
 		if count >= MAX_LABELED:
 			break
-		if n is CSGShape3D or CsgBlockoutFreeze.is_frozen(n):
-			if _draw_dimensions(overlay, camera, n as Node3D, placed, labels):
+		# A room is measured (and resized) by its Shell, without the frames sticking out.
+		var room: CSGCombiner3D = CsgBlockoutRoom.room_of(n)
+		var target: Node = CsgBlockoutRoom.shell_of(room) if room != null else n
+		if target in seen:
+			continue
+		seen.append(target)
+		if target is CSGShape3D or CsgBlockoutFreeze.is_frozen(target):
+			if _draw_dimensions(overlay, camera, target as Node3D, placed, labels):
 				count += 1
 
 ## Draws three dimension lines from the bottom corner closest to the camera; labels
@@ -218,6 +226,17 @@ static func apply_size(node: Node3D, axis: int, text: String) -> bool:
 	var axis_scale: float = maxf(xf.basis[axis].length(), 0.0001)
 	var local: float = value / axis_scale
 	var up: Vector3 = xf.basis.y.normalized()
+	var room: CSGCombiner3D = CsgBlockoutRoom.room_of(node)
+	if room != null and node is CSGBox3D:
+		# A room's Shell: resize the room, keeping its walls as thick as they are.
+		var resize: CsgBlockoutRoom.Resize = CsgBlockoutRoom.Resize.new(room, axis)
+		var grow: float = value - (node as CSGBox3D).size[axis] * axis_scale
+		if axis == 1:
+			resize.apply(grow, 0.0)
+		else:
+			resize.apply(grow * 0.5, grow * 0.5)
+		resize.commit(CsgBlockoutI18n.t("RESIZE_ACTION"))
+		return true
 	var action: CsgBlockoutSceneOps.Action = CsgBlockoutSceneOps.Action.new(CsgBlockoutI18n.t("RESIZE_ACTION"))
 	if node is CSGBox3D:
 		var size: Vector3 = (node as CSGBox3D).size
