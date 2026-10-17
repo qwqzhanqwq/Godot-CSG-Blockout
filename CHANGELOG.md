@@ -5,18 +5,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-10-17
+
+Four new shapes for blocking out (wedge, arch, curved wall and spiral stairs), a Play From Here test character that walks up stairs, and rooms that resize as rooms.
+
 ### Added
 - **Four new shapes** in the palette and the pie menu's Shapes: **Wedge** (`CSGWedge3D`, a box with one sloped face for ramps, roof halves and angled walls), **Arch** (`CSGArch3D`, a wall piece with an arched opening, half-round or flatter when the opening is low), **Curved Wall** (`CSGCurvedWall3D`, a wall bent around a vertical axis, up to a closed ring) and **Spiral Stairs** (`CSGSpiralStairs3D`, stairs winding around a center well, floating steps or filled to the floor, several turns for towers, clockwise or counterclockwise). They are placed, snapped and joined to CSG trees like the other shapes.
 - Their faces have arrows like boxes: wedge and arch faces change their size, the arch also has arrows for the height and width of its opening, a curved wall's arrows change its height, thickness, inner radius and how far it sweeps, and the spiral stairs' arrows change the height, the radii and how far they turn. Their dimension labels take typed sizes (only the height for the curved wall and spiral stairs).
 - Spiral stairs warn in the Inspector when a step's rise is uncomfortable, and when the turn above leaves less headroom than the character height in the player metrics.
 - Freezing with **one native shape per primitive** collision gives the new shapes convex pieces that follow them (the arch's opening stays open, every spiral step gets its own piece) instead of one hull.
-- **The Play From Here test character walks up stairs.** A new player metric, `max_step_height` (0.3 m by default), is the highest step it walks up without jumping; stairs and spiral stairs warn in the Inspector when their steps are higher, and the player reference draws it. It only steps on the ground, so jumps still peak exactly at `single_jump_height`.
+- **The Play From Here test character walks up stairs.** A new player metric, `max_step_height` (0.3 m by default), is the highest step it walks up without jumping; stairs and spiral stairs warn in the Inspector when their steps are higher, and the player reference draws it. It only steps on the ground, so jumps are unchanged.
 - Without the plugin, the wedge, arch and curved wall stay plain `CSGPolygon3D` nodes with the same shape, and the spiral stairs a `CSGMesh3D` whose mesh is saved with the scene.
 
 ### Changed
 - The duplicate-along-an-axis preview shows stairs and other extruded or turned `CSGPolygon3D` shapes with their real outline instead of their bounding box.
 
 ### Fixed
+- **Rooms resize as rooms.** Dragging a face of a room drawn with the Room tool moved only its outer shell: raising the top sealed the room, and pushing a wall out made that wall thicker. Now select the room (it is selected right after drawing) or click one of its walls, then drag a face arrow or type a size: walls and floor keep their thickness, an open top stays open, and doors and windows in a moved wall go with it. Godot's own size handles on a selected room shell do the same, and the room's dimension labels measure the shell without the frames sticking out.
 - The Play From Here test character stopped at the first step of any stairs and hopped down them, airborne most of the way: its capsule touched each step's edge at a slope too steep to count as floor. It now walks up and down steps as high as `max_step_height` and stays on the ground.
 - Selecting stairs no longer opens Godot's polygon point editor on them: their profile comes from their own properties, so points moved there were overwritten by the next change. The same goes for the new wedge, arch and curved wall.
 
@@ -27,8 +32,8 @@ A major release that turns CSG_Blockout from a shape-creation helper into a leve
 ### Added
 - **Draw in one drag**: **Box** drags a base on any surface (or the ground) and builds the box on release, with the height you gave your last box. **Cut** drags an opening on a surface and cuts straight through it; the cut lands in the CSG tree it was drawn on (a lone wall is wrapped into a new combiner automatically). **Room** creates a shell box plus a hollow; height, wall thickness, floor thickness and open top are in Project Settings under `addons/csg_blockout/room`. Hold Shift while drawing a box to make it a separate object.
 - **Door and window presets**: click a wall to cut a doorway (dropped to the floor) or a window (at sill height). The cut is aligned to the wall and goes through its measured thickness; F adds a frame. Sizes live under `addons/csg_blockout/openings`.
-- **Face arrows**: a selected box, cylinder, stairs or room shows an arrow on each face that points toward you. Drag it to move that face along its normal; the opposite face stays put and axis-aligned faces land on grid lines. Shift-click stays Godot's multi-select. A room (selected as a whole or by clicking a wall) resizes as a room: walls and floor keep their thickness, an open top stays open, and doors and windows in a moved wall go with it; Godot's own size handles on a selected room shell do the same.
-- **Typed sizes**: click a dimension label of a selected box, cylinder, stairs or room and type the size (`2.5`, `2,5` or `2.5 m`); one undo step.
+- **Face arrows**: a selected box, cylinder or stairs shows an arrow on each face that points toward you. Drag it to move that face along its normal; the opposite face stays put and axis-aligned faces land on grid lines. Shift-click stays Godot's multi-select.
+- **Typed sizes**: click a dimension label of a selected box, cylinder or stairs and type the size (`2.5`, `2,5` or `2.5 m`); one undo step.
 - **Double-click selects the whole CSG tree** a shape belongs to; a single click still selects the primitive.
 - **Duplicate along an axis** (`Ctrl+Shift+D`): move the mouse along X, Y or Z to repeat the selection with its own size as the step; `+` / `-` add or remove a gap, X/Y/Z lock the axis, click to create.
 - **Grid and snapping**: one grid size for all CSG Blockout tools (0.125–8 m), changed with `[` / `]` or the toolbar dropdown, with a snap toggle (hold Ctrl to invert while dragging). The current grid is shown in the viewport.
