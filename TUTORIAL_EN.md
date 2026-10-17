@@ -52,7 +52,7 @@ A box drawn on a CSG surface joins that surface's tree (so it merges with it); d
 - For any other opening, use **Cut**: drag the outline on a surface and release, and it cuts straight through. The cut lands in the CSG tree it was drawn on; a lone wall gets wrapped into a new combiner automatically.
 
 ### Shape and arrange
-- **Face arrows**: a selected box, cylinder, stairs or room shows an arrow on every face that points toward you. Drag one to push or pull that face; the opposite face stays put and the face lands on the grid. One undo step per drag.
+- **Face arrows**: a selected box, cylinder, stairs, room, wedge, arch, curved wall or spiral stairs shows an arrow on every face that points toward you. Drag one to push or pull that face; the opposite face stays put and the face lands on the grid. One undo step per drag.
 - **Typed sizes**: the width, height and depth labels of a selected shape are clickable. Click one, type a size (`2.5`, `2,5` and `2.5 m` all work) and press `Enter`; the bottom stays where it is.
 - **Whole tree**: a click selects the primitive under the cursor; a double-click selects the whole CSG tree it belongs to.
 - **Operations**: the palette's union, subtraction and intersection buttons change the selected shapes and show which operation they have. There is no hidden "current operation": new shapes are always unions.

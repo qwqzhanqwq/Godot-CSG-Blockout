@@ -2,10 +2,11 @@
 class_name CsgBlockoutMeshInspector
 extends EditorInspectorPlugin
 ## Warns in the Inspector when a CSGMesh3D's mesh isn't manifold, and can mark the
-## offending edges in the viewport.
+## offending edges in the viewport. Spiral stairs build their own (closed) mesh and
+## are left out.
 
 func _can_handle(object: Object) -> bool:
-	return object is CSGMesh3D
+	return object is CSGMesh3D and not (object is CSGSpiralStairs3D)
 
 func _parse_begin(object: Object) -> void:
 	var node: CSGMesh3D = object as CSGMesh3D

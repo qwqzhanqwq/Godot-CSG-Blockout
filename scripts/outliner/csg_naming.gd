@@ -18,6 +18,14 @@ static func role(n: Node) -> String:
 		return "Ruler"
 	if n is CSGStairs3D:
 		return "Ramp" if (n as CSGStairs3D).is_ramp else "Stairs"
+	if n is CSGWedge3D:
+		return "Wedge"
+	if n is CSGArch3D:
+		return "Arch"
+	if n is CSGCurvedWall3D:
+		return "CurvedWall"
+	if n is CSGSpiralStairs3D:
+		return "SpiralStairs"
 	if n is CSGCombiner3D:
 		if n.get_node_or_null("Shell") != null and n.get_node_or_null("Hollow") != null:
 			return "Room"
@@ -109,7 +117,8 @@ static func plan(nodes: Array[Node]) -> Dictionary:
 	return result
 
 const AUTO_STEMS: PackedStringArray = ["Box", "Cylinder", "Sphere", "Torus", "Polygon", "Mesh", "Stairs", "Ramp", "Ruler",
-	"Floor", "Platform", "Wall", "Pillar", "Column", "Block", "Cut", "Hole", "Door", "Window", "Room", "Group", "Frame"]
+	"Floor", "Platform", "Wall", "Pillar", "Column", "Block", "Cut", "Hole", "Door", "Window", "Room", "Group", "Frame",
+	"Wedge", "Arch", "CurvedWall", "SpiralStairs"]
 
 static var _auto_regex: RegEx
 

@@ -3,7 +3,8 @@ class_name CsgBlockoutBakePipeline
 extends RefCounted
 ## Turns a CSG root into the outputs of a freeze, according to bake options:
 ##   collision: "auto" (trimesh when the CSG uses collision, else none), "none",
-##              "trimesh", "primitives" (one native shape per primitive; union-only
+##              "trimesh", "primitives" (one native shape per primitive, or the convex
+##              pieces of the plugin's arches, curved walls and so on; union-only
 ##              trees, otherwise falls back to trimesh), "convex" (one convex hull)
 ##   uv2 / texel: lightmap UV2 unwrap        occluder: OccluderInstance3D
 ##   lod: automatic LODs (ImporterMesh)
@@ -81,6 +82,13 @@ static func build(root: CSGShape3D, options: Dictionary) -> Dictionary:
 			var inv: Transform3D = root.global_transform.affine_inverse()
 			for prim: CSGShape3D in CsgBlockoutShapeInfo.primitives_under(root):
 				if not prim.is_visible_in_tree():
+					continue
+				if prim.has_method(&"blockout_collision_pieces"):
+					# Concave shapes (arch openings, curves, spirals) come in convex pieces.
+					for pts: PackedVector3Array in prim.call(&"blockout_collision_pieces"):
+						var hull: ConvexPolygonShape3D = ConvexPolygonShape3D.new()
+						hull.points = pts
+						shapes.append(_shape_node(hull, inv * prim.global_transform))
 					continue
 				var info: Dictionary = _native_shape(prim)
 				if info.is_empty():

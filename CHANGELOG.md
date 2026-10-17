@@ -5,6 +5,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+- **Four new shapes** in the palette and the pie menu's Shapes: **Wedge** (`CSGWedge3D`, a box with one sloped face for ramps, roof halves and angled walls), **Arch** (`CSGArch3D`, a wall piece with an arched opening, half-round or flatter when the opening is low), **Curved Wall** (`CSGCurvedWall3D`, a wall bent around a vertical axis, up to a closed ring) and **Spiral Stairs** (`CSGSpiralStairs3D`, stairs winding around a center well, floating steps or filled to the floor, several turns for towers, clockwise or counterclockwise). They are placed, snapped and joined to CSG trees like the other shapes.
+- Their faces have arrows like boxes: wedge and arch faces change their size, the arch also has arrows for the height and width of its opening, a curved wall's arrows change its height, thickness, inner radius and how far it sweeps, and the spiral stairs' arrows change the height, the radii and how far they turn. Their dimension labels take typed sizes (only the height for the curved wall and spiral stairs).
+- Spiral stairs warn in the Inspector when a step's rise is uncomfortable, and when the turn above leaves less headroom than the character height in the player metrics.
+- Freezing with **one native shape per primitive** collision gives the new shapes convex pieces that follow them (the arch's opening stays open, every spiral step gets its own piece) instead of one hull.
+- Without the plugin, the wedge, arch and curved wall stay plain `CSGPolygon3D` nodes with the same shape, and the spiral stairs a `CSGMesh3D` whose mesh is saved with the scene.
+
+### Changed
+- The duplicate-along-an-axis preview shows stairs and other extruded or turned `CSGPolygon3D` shapes with their real outline instead of their bounding box.
+
+### Fixed
+- Selecting stairs no longer opens Godot's polygon point editor on them: their profile comes from their own properties, so points moved there were overwritten by the next change. The same goes for the new wedge, arch and curved wall.
+
 ## [3.0.0] - 2026-10-03
 
 A major release that turns CSG_Blockout from a shape-creation helper into a level prototyping tool: draw rooms in one drag, cut doors and windows, check the level against your character, play it, and freeze it into meshes you can always turn back into CSG. The controls were rebuilt around one rule: every tool does one thing, says what the next step is, and hands control back.

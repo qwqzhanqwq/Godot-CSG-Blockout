@@ -176,6 +176,12 @@ func _get_configuration_warnings() -> PackedStringArray:
 		)
 	return warnings
 
+## Keeps Godot's polygon point editor away: the profile is built from the properties
+## above, so points moved there would be overwritten.
+@warning_ignore("native_method_override")
+func _is_editable_3d_polygon() -> bool:
+	return false
+
 func _validate_property(property: Dictionary) -> void:
 	var prop_name: StringName = property["name"]
 	if prop_name == &"polygon" or prop_name == &"mode" or prop_name == &"depth" or prop_name == &"smooth_faces":

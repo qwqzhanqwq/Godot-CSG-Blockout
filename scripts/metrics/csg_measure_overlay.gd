@@ -3,7 +3,8 @@ class_name CsgBlockoutMeasureOverlay
 extends CsgBlockoutTool
 ## Passive overlay: dimension lines with W/H/D labels (meters) on the selected CSG
 ## shapes and frozen blockout, drawn along the bottom edges nearest the camera.
-## The labels of boxes, cylinders, stairs and rooms are editable: click one, type a
+## The labels of boxes, cylinders, stairs, rooms and the plugin's other shapes are
+## editable (the curved wall and spiral stairs only their height): click one, type a
 ## size, Enter (Esc cancels). Height grows from the bottom, width and depth from the
 ## center; rooms keep their wall thickness.
 ## Toggled from the "⋯" menu; the setting is stored per user.
@@ -37,7 +38,13 @@ func get_id() -> StringName:
 	return &"measure_overlay"
 
 static func editable(n: Node) -> bool:
-	return n is CSGBox3D or n is CSGCylinder3D or n is CSGStairs3D
+	return n is CSGBox3D or n is CSGCylinder3D or n is CSGStairs3D or CsgBlockoutShapeInfo.has_protocol(n)
+
+## Whether the label of local `axis` (0 W, 1 H, 2 D) of an editable node takes a size.
+static func editable_axis(n: Node, axis: int) -> bool:
+	if CsgBlockoutShapeInfo.has_protocol(n):
+		return axis in (n.call(&"blockout_editable_axes") as PackedInt32Array)
+	return editable(n)
 
 func input(camera: Camera3D, event: InputEvent) -> int:
 	if manager.active != null or not enabled:
@@ -156,7 +163,7 @@ func _draw_dimensions(overlay: Control, camera: Camera3D, n: Node3D, placed: Arr
 			rect = _label_rect(font, font_size, pos, text_size, scale)
 		placed.append(rect)
 		var drawn: Rect2 = CsgBlockoutToolManager.draw_label(overlay, font, font_size, pos, label, false)
-		if can_edit:
+		if can_edit and editable_axis(n, axis):
 			var entry: Dictionary = {"rect": drawn, "node": n, "axis": axis}
 			labels.append(entry)
 			if _label_key(entry) == _label_key(_hover_label):
@@ -256,6 +263,12 @@ static func apply_size(node: Node3D, axis: int, text: String) -> bool:
 	elif node is CSGStairs3D:
 		var props: Array[StringName] = [&"total_depth", &"total_height", &"width"]
 		action.set_property(node, props[axis], local)
+	elif CsgBlockoutShapeInfo.has_protocol(node):
+		var props: Dictionary = node.call(&"blockout_size_props", axis, local)
+		if props.is_empty():
+			return false
+		for prop: StringName in props:
+			action.set_property(node, prop, props[prop])
 	else:
 		return false
 	action.commit()

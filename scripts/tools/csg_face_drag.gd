@@ -6,10 +6,12 @@ extends CsgBlockoutTool
 ## normal. The opposite face stays put, axis-aligned faces land on grid lines, and the
 ## drag is one undo step. No modifier key, so Shift stays Godot's multi-select.
 ## Supported: CSGBox3D (6 faces), CSGCylinder3D (caps -> height, side -> radius),
-## CSGStairs3D (top -> height, front -> depth, sides -> width), and rooms from the Room
-## tool (selected as a whole or by their Shell), which resize as rooms: the walls keep
-## their thickness (see CsgBlockoutRoom). With a room's Shell selected, Godot's own size
-## handles on its far faces resize the room this way too.
+## CSGStairs3D (top -> height, front -> depth, sides -> width), the plugin's other shapes
+## (wedge, arch, curved wall, spiral stairs: their own faces, through the shape protocol
+## in CsgBlockoutShapeInfo), and rooms from the Room tool (selected as a whole or by
+## their Shell), which resize as rooms: the walls keep their thickness (see
+## CsgBlockoutRoom). With a room's Shell selected, Godot's own size handles on its far
+## faces resize the room this way too.
 
 ## Mouse travel (px) before a press on a handle becomes a drag.
 const DRAG_THRESHOLD: float = 3.0
@@ -30,7 +32,7 @@ func get_id() -> StringName:
 	return &"face_drag"
 
 static func supports(n: Node) -> bool:
-	return n is CSGBox3D or n is CSGCylinder3D or n is CSGStairs3D
+	return n is CSGBox3D or n is CSGCylinder3D or n is CSGStairs3D or CsgBlockoutShapeInfo.has_protocol(n)
 
 func input(camera: Camera3D, event: InputEvent) -> int:
 	if manager.active != null:
@@ -175,6 +177,8 @@ static func _props_for(n: Node3D) -> Array[StringName]:
 		return [&"height", &"radius"]
 	if n is CSGStairs3D:
 		return [&"total_height", &"total_depth", &"width"]
+	if CsgBlockoutShapeInfo.has_protocol(n):
+		return n.call(&"blockout_resize_props")
 	return []
 
 func _update_drag(camera: Camera3D, pos: Vector2, event: InputEvent) -> void:
@@ -251,6 +255,12 @@ func _apply(delta: float) -> float:
 			applied = (new_h - float(start[&"height"])) * y_scale
 			c.height = new_h
 			node.global_position = xf.origin + xf.basis.y.normalized() * (float(face["sign"]) * applied * 0.5)
+	elif CsgBlockoutShapeInfo.has_protocol(node):
+		# The shape works in local meters along the face normal from its start values.
+		var normal_scale: float = maxf((xf.basis * (face["normal"] as Vector3)).length(), 0.0001)
+		var result: Dictionary = node.call(&"blockout_push", int(face["id"]), delta / normal_scale, start)
+		applied = float(result["applied"]) * normal_scale
+		node.global_position = xf.origin + xf.basis * (result["offset"] as Vector3)
 	elif node is CSGStairs3D:
 		var s: CSGStairs3D = node as CSGStairs3D
 		match int(face["id"]):
@@ -368,7 +378,10 @@ func _face_outline(node: Node3D, face: Dictionary, camera: Camera3D) -> PackedVe
 			for i: int in 24:
 				var a: float = TAU * float(i) / 24.0
 				pts3.append(Vector3(cos(a) * c.radius, y, sin(a) * c.radius))
-	else:
+	elif CsgBlockoutShapeInfo.has_protocol(node):
+		pts3 = node.call(&"blockout_face_outline", int(face["id"]))
+	if pts3.is_empty():
+		# Boxes, stairs, and protocol faces without an outline of their own.
 		var box: AABB = CsgBlockoutShapeInfo.local_aabb(node)
 		var corners: PackedVector3Array = CsgBlockoutShapeInfo.box_face_corners(box.size * 0.5, face["axis"], face["sign"])
 		for p: Vector3 in corners:

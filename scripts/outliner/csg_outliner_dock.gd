@@ -220,6 +220,14 @@ func _node_icon(n: Node) -> Texture2D:
 				return load("res://addons/csg_blockout/res/icons/intersection.svg") as Texture2D
 	if n is CSGStairs3D:
 		return load("res://addons/csg_blockout/res/icons/stairs.svg") as Texture2D
+	if n is CSGWedge3D:
+		return load("res://addons/csg_blockout/res/icons/wedge.svg") as Texture2D
+	if n is CSGArch3D:
+		return load("res://addons/csg_blockout/res/icons/arch.svg") as Texture2D
+	if n is CSGCurvedWall3D:
+		return load("res://addons/csg_blockout/res/icons/curved_wall.svg") as Texture2D
+	if n is CSGSpiralStairs3D:
+		return load("res://addons/csg_blockout/res/icons/spiral_stairs.svg") as Texture2D
 	var icon: Texture2D = _icon(StringName(n.get_class()))
 	return icon if icon != null else _icon(&"Node3D")
 

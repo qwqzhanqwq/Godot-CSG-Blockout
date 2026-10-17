@@ -19,6 +19,10 @@ const BASE_NAMES: Dictionary = {
 	"CSGMesh3D": "Mesh",
 	"CSGCombiner3D": "Group",
 	"CSGStairs3D": "Stairs",
+	"CSGWedge3D": "Wedge",
+	"CSGArch3D": "Arch",
+	"CSGCurvedWall3D": "CurvedWall",
+	"CSGSpiralStairs3D": "SpiralStairs",
 	"CSGRuler3D": "Ruler",
 	"CSGPlayerReference3D": "PlayerRef",
 	"CSGRepeater3D": "Repeater",
@@ -29,6 +33,14 @@ static func instantiate(type_name: String) -> Node3D:
 	match type_name:
 		"CSGStairs3D":
 			return CSGStairs3D.new()
+		"CSGWedge3D":
+			return CSGWedge3D.new()
+		"CSGArch3D":
+			return CSGArch3D.new()
+		"CSGCurvedWall3D":
+			return CSGCurvedWall3D.new()
+		"CSGSpiralStairs3D":
+			return CSGSpiralStairs3D.new()
 		"CSGRuler3D":
 			return CSGRuler3D.new()
 		"CSGPlayerReference3D":

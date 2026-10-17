@@ -38,7 +38,7 @@ You can also walk away from the plugin at any time:
 
 - **Primitives** are stock `CSGBox3D`, `CSGCylinder3D`, etc. Disabling or removing the plugin doesn't touch them.
 - **Frozen blockout** is a regular `MeshInstance3D` + `StaticBody3D`. Only unfreezing needs the plugin.
-- **Stairs** (`CSGStairs3D`) fall back to a plain `CSGPolygon3D` with the same shape.
+- **Stairs, wedges, arches and curved walls** fall back to a plain `CSGPolygon3D` with the same shape; **spiral stairs** to a `CSGMesh3D` whose mesh is saved with the scene.
 - **Repeater / Spreader** instances are live previews. Click **Bake** first and they become ordinary scene nodes.
 - **Grid materials** live in the plugin folder. Disabling the plugin keeps them; deleting the folder doesn't.
 
@@ -86,10 +86,11 @@ Every tool does one thing and hands control back, and the card at the top of the
 ### Build
 - **Draw in one drag**: drag a base on any surface or the ground and release; the box gets the height you used last. **Cut** drags an opening into a surface and cuts through it; the cut lands in the CSG tree it was drawn on (a lone wall is wrapped into a combiner automatically). **Room** makes a hollow shell with configurable wall thickness.
 - **Doors and windows**: click a wall to cut a doorway or a window at sill height, with an optional frame (`F`). Sizes are in Project Settings.
-- **Face arrows and typed sizes**: a selected box, cylinder, stairs or room shows an arrow on each face toward you; drag it to push or pull that face while the opposite one stays put. Click a dimension label to type an exact size. Rooms keep their wall thickness, and doors and windows move with their wall.
+- **Face arrows and typed sizes**: a selected box, cylinder, stairs, room or any of the shapes below shows an arrow on each face toward you; drag it to push or pull that face while the opposite one stays put. Click a dimension label to type an exact size. Rooms keep their wall thickness, and doors and windows move with their wall.
 - **Grid and snapping**: one grid (0.125–8 m) for every tool, keyboard nudging, rotation in 15° steps, drop to the surface below, duplicate along an axis (`Ctrl + Shift + D`).
 - **Tool palette and pie menu**: the palette on the left of the viewport is always there, with named tools, shapes, the operation of the selected shapes, materials and helpers. `Shift + A` opens the same tools as a pie menu at the cursor. Double-click a shape to select its whole CSG tree.
 - **Stairs and ramps** (`CSGStairs3D`): set height, depth, width and step count, or switch to a smooth ramp. Warns when steps are uncomfortable.
+- **Wedges, arches, curved walls and spiral stairs**: a sloped block for ramps and roofs, a wall piece with an arched opening, a wall bent around a center up to a closed ring, and stairs winding around a well, one turn or several for a tower. The arch's opening and the curve's sweep have their own arrows; spiral stairs warn when the turn above is too low to walk under.
 - **Grid materials that never stretch**: world-aligned 1 m grid in light, dark and orange, batch-applied to the selection.
 
 ### Measure and test

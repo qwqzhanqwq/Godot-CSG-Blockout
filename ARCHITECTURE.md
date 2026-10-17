@@ -34,6 +34,7 @@ This document is for developers who want to know how `CSG_Blockout` works inside
 | `scripts/inspector/` | The `CSGMesh3D` manifold check and its Inspector panel. |
 | `scripts/metrics/` | Dimension labels, the player reference node and gizmo, the level check, semantic tags. |
 | `scripts/outliner/` | The Blockout dock (outliner + Checks tab) and semantic naming. |
+| `scripts/shapes/` | The wedge, arch, curved wall and spiral stairs nodes. The tools reach them through the shape protocol (see the Node Reference). They run in games too and must not reference editor classes. |
 | `scripts/runtime/` | Scripts that run in the game: the Play From Here launcher and test character. They must not reference editor classes. |
 | `scripts/patterns/` | `CSGPattern` resources used by `CSGRepeater3D`. |
 | `scripts/i18n/` | String tables for the 7 interface languages, merged by `CsgBlockoutI18n`. |
@@ -191,7 +192,7 @@ Candidates are drawn by rejection sampling inside the `Shape3D` and given up aft
 ## 10. GDScript 2.0, Export Safety and Engine Versions
 
 - **Static typing everywhere**: every variable, parameter and return type is typed.
-- **Export safety**: scripts that can run in a game (`CSGRepeater3D`, `CSGSpreader3D`, `CSGStairs3D`, `CSGRuler3D`, `CSGPlayerReference3D`, the runtime folder) never name editor-only classes. When they need the editor, they reach it through `Engine.get_singleton(&"EditorInterface")`, guarded by `Engine.is_editor_hint()`; otherwise the exported game would fail to compile them.
+- **Export safety**: scripts that can run in a game (`CSGRepeater3D`, `CSGSpreader3D`, `CSGStairs3D`, the shapes folder, `CSGRuler3D`, `CSGPlayerReference3D`, the runtime folder) never name editor-only classes. When they need the editor, they reach it through `Engine.get_singleton(&"EditorInterface")`, guarded by `Engine.is_editor_hint()`; otherwise the exported game would fail to compile them.
 - **Engine versions**: the plugin supports Godot 4.6+. Calls that differ between versions (`EditorDock`, shortcut registration, file dialog flags) go through `CsgBlockoutCompat`.
 
 ---
@@ -276,6 +277,38 @@ Editor-only (removed when the game runs and on export). The gizmo draws the caps
 | `max_slope_angle` | `float` | `45.0` | Override: steepest walkable slope in degrees. |
 | `show_jump_arc` | `bool` | `true` | Draws the sprint-jump arc. |
 | `show_slope` | `bool` | `true` | Draws the slope wedge. |
+
+### Wedge, arch, curved wall and spiral stairs
+
+`CSGWedge3D`, `CSGArch3D` and `CSGCurvedWall3D` are `CSGPolygon3D` nodes whose profile, depth and spin settings are generated from the properties below and saved with the scene (hidden from the Inspector), so without the plugin they keep their shape. `CSGSpiralStairs3D` is a `CSGMesh3D` that builds a closed, outward-facing mesh (welded vertices, no normals or UVs: CSG computes its own) and saves it the same way. Setting any property rebuilds the shape at once, so bounds and face arrows are right in the same frame.
+
+The tools don't know these classes by name. They talk to them through the **shape protocol**, methods every one of them implements:
+
+| Method | Used by |
+| :--- | :--- |
+| `blockout_aabb() -> AABB` | Local bounds: placement on surfaces, dimension labels, selection boxes. |
+| `blockout_faces() -> Array[Dictionary]` | Face arrows: `{id, normal, center}` in local space. |
+| `blockout_resize_props() -> Array[StringName]` | Properties recorded for the undo step of a push. |
+| `blockout_push(id, delta, start) -> Dictionary` | Moves face `id` by `delta` local meters from the `start` values; returns `{applied, offset}` (how far the origin moves, locally). |
+| `blockout_face_outline(id) -> PackedVector3Array` | The hover highlight (empty: the bounding-box face is used). |
+| `blockout_editable_axes()` / `blockout_size_props(axis, value)` | Which dimension labels take typed sizes, and the properties a typed size sets. |
+| `blockout_collision_pieces() -> Array[PackedVector3Array]` | Convex pieces for the "one native shape per primitive" freeze collision. |
+| `blockout_distance(p) -> float` | Approximate signed distance (curved wall, spiral stairs), so a click resolves to the right primitive inside a tree. |
+
+`CsgBlockoutShapeInfo.has_protocol(node)` is the check. A new shape only needs these methods (plus an entry in the node factory, the palette, the pie menu and the translations) to work with every tool.
+
+| Node | Property | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `CSGWedge3D` | `size` | `(2, 1, 2)` | Run along +X (the slope rises toward +X), height, width toward -Z. |
+| `CSGArch3D` | `size` | `(3, 3, 0.5)` | Width along +X, height, thickness toward -Z. |
+| | `opening_width` / `opening_height` | `1.6` / `2.4` | The opening, centered in the width; the height is at the top of the arc. A half circle, or an elliptical arc when the opening is lower than half its width. Kept at least 5 cm inside the arch. |
+| | `arc_segments` | `12` | Segments of the arc. |
+| `CSGCurvedWall3D` | `radius` / `thickness` / `height` | `3` / `0.25` / `3` | Inner radius around the node's Y axis; the wall grows outward from it. |
+| | `angle` / `sides` | `90` / `12` | Sweep in degrees from +X toward -Z (360 closes the ring), in flat segments. |
+| `CSGSpiralStairs3D` | `height` / `outer_radius` / `inner_radius` | `3` / `1.5` / `0.25` | Climb, and the radii of the steps around the center well. |
+| | `angle` / `step_count` | `360` / `16` | How far the stairs turn (30 to 1440 degrees) and in how many steps (at least 3 per turn). |
+| | `step_thickness` / `fill_to_floor` | `0.25` / `false` | Floating steps (kept thicker than one rise so they join and, past one turn, thin enough to leave the turn above free) or solid down to the floor (up to one turn). |
+| | `clockwise` / `enable_ergonomic_warning` | `false` / `true` | Climb direction seen from above; Inspector warnings for the rise (0.15-0.20 m) and for headroom under the turn above lower than the character height. |
 
 ---
 

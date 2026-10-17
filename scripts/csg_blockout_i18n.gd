@@ -312,6 +312,46 @@ const TABLE: Dictionary = {
 		"pt": "Rampa",
 		"ru": "Рампа"
 	},
+	"WEDGE": {
+		"zh": "楔形",
+		"zh_CN": "楔形",
+		"en": "Wedge",
+		"ja": "くさび形",
+		"ko": "쐐기",
+		"es": "Cuña",
+		"pt": "Cunha",
+		"ru": "Клин"
+	},
+	"ARCH": {
+		"zh": "拱门",
+		"zh_CN": "拱门",
+		"en": "Arch",
+		"ja": "アーチ",
+		"ko": "아치",
+		"es": "Arco",
+		"pt": "Arco",
+		"ru": "Арка"
+	},
+	"CURVED_WALL": {
+		"zh": "弧形墙",
+		"zh_CN": "弧形墙",
+		"en": "Curved Wall",
+		"ja": "曲面壁",
+		"ko": "곡면 벽",
+		"es": "Muro curvo",
+		"pt": "Parede curva",
+		"ru": "Изогнутая стена"
+	},
+	"SPIRAL_STAIRS": {
+		"zh": "螺旋楼梯",
+		"zh_CN": "螺旋楼梯",
+		"en": "Spiral Stairs",
+		"ja": "らせん階段",
+		"ko": "나선 계단",
+		"es": "Escalera de caracol",
+		"pt": "Escada caracol",
+		"ru": "Винтовая лестница"
+	},
 	"RULER": {
 		"zh": "关卡标尺",
 		"zh_CN": "关卡标尺",
@@ -486,6 +526,10 @@ static func _ensure_reverse_map() -> void:
 	_reverse_map["CSGRuler"] = "RULER"
 	_reverse_map["Ruler"] = "RULER"
 	_reverse_map["Ramp"] = "RAMP"
+	_reverse_map["CSGWedge3D"] = "WEDGE"
+	_reverse_map["CSGArch3D"] = "ARCH"
+	_reverse_map["CSGCurvedWall3D"] = "CURVED_WALL"
+	_reverse_map["CSGSpiralStairs3D"] = "SPIRAL_STAIRS"
 
 static func _normalize_locale(loc: String) -> String:
 	var l := loc.to_lower()

@@ -34,6 +34,7 @@
 | `scripts/inspector/` | `CSGMesh3D` 的流形检查及其 Inspector 面板。 |
 | `scripts/metrics/` | 尺寸标注、角色参照节点与 gizmo、关卡检查、语义标签。 |
 | `scripts/outliner/` | 白盒停靠面板（大纲 + 检查页签）与语义命名。 |
+| `scripts/shapes/` | 楔形、拱门、弧形墙和螺旋楼梯节点。工具通过形状协议使用它们（见节点参考）。它们也会在游戏里运行，不能引用编辑器类。 |
 | `scripts/runtime/` | 在游戏里运行的脚本：从这里试玩的启动场景与测试小人。它们不能引用任何编辑器类。 |
 | `scripts/patterns/` | `CSGRepeater3D` 使用的 `CSGPattern` 资源。 |
 | `scripts/i18n/` | 7 种界面语言的文案表，由 `CsgBlockoutI18n` 合并。 |
@@ -191,7 +192,7 @@ graph TD
 ## 10. GDScript 2.0、导出安全与引擎版本
 
 - **全面静态类型**：每个变量、参数、返回值都有类型。
-- **导出安全**：可能在游戏里运行的脚本（`CSGRepeater3D`、`CSGSpreader3D`、`CSGStairs3D`、`CSGRuler3D`、`CSGPlayerReference3D`、runtime 目录）从不直接写出编辑器专用类名。需要编辑器时，通过 `Engine.get_singleton(&"EditorInterface")` 获取，并用 `Engine.is_editor_hint()` 把关；否则导出后的游戏会编译失败。
+- **导出安全**：可能在游戏里运行的脚本（`CSGRepeater3D`、`CSGSpreader3D`、`CSGStairs3D`、shapes 目录、`CSGRuler3D`、`CSGPlayerReference3D`、runtime 目录）从不直接写出编辑器专用类名。需要编辑器时，通过 `Engine.get_singleton(&"EditorInterface")` 获取，并用 `Engine.is_editor_hint()` 把关；否则导出后的游戏会编译失败。
 - **引擎版本**：插件支持 Godot 4.6+。不同版本间有差异的调用（`EditorDock`、快捷键注册、文件对话框选项）统一走 `CsgBlockoutCompat`。
 
 ---
@@ -276,6 +277,38 @@ graph TD
 | `max_slope_angle` | `float` | `45.0` | 覆盖值：最大可行走坡度（度）。 |
 | `show_jump_arc` | `bool` | `true` | 画出冲刺跳跃弧线。 |
 | `show_slope` | `bool` | `true` | 画出坡度楔形。 |
+
+### 楔形、拱门、弧形墙与螺旋楼梯
+
+`CSGWedge3D`、`CSGArch3D`、`CSGCurvedWall3D` 都是 `CSGPolygon3D`，轮廓、挤出深度和旋转参数由下列属性生成，并随场景保存（在 Inspector 里隐藏），所以没有插件也保持原样。`CSGSpiralStairs3D` 是 `CSGMesh3D`，自己生成一个封闭、朝外的网格（顶点已焊接，不带法线和 UV，CSG 会自己算），同样随场景保存。改任何属性都会立刻重建形状，所以同一帧里包围盒和面箭头就是对的。
+
+工具并不按类名认识这几个节点，而是通过**形状协议**和它们打交道，每个类都实现了这些方法：
+
+| 方法 | 用在哪里 |
+| :--- | :--- |
+| `blockout_aabb() -> AABB` | 本地包围盒：贴着表面放置、尺寸标注、选择框。 |
+| `blockout_faces() -> Array[Dictionary]` | 面上的箭头：本地空间的 `{id, normal, center}`。 |
+| `blockout_resize_props() -> Array[StringName]` | 一次推拉记入撤销的属性。 |
+| `blockout_push(id, delta, start) -> Dictionary` | 从 `start` 的属性值出发，把面 `id` 推动 `delta` 米（本地）；返回 `{applied, offset}`（原点在本地的位移）。 |
+| `blockout_face_outline(id) -> PackedVector3Array` | 悬停高亮（返回空则用包围盒的面）。 |
+| `blockout_editable_axes()` / `blockout_size_props(axis, value)` | 哪些尺寸标注能输入尺寸，以及输入后要设的属性。 |
+| `blockout_collision_pieces() -> Array[PackedVector3Array]` | 冻结时“每个图元一个原生形状”碰撞所用的凸块。 |
+| `blockout_distance(p) -> float` | 近似有符号距离（弧形墙、螺旋楼梯），让一棵树里的点击落到正确的图元上。 |
+
+判断用 `CsgBlockoutShapeInfo.has_protocol(node)`。新加一种形状，只要实现这些方法（再在节点工厂、工具面板、饼菜单和翻译里各加一项），所有工具就都能用。
+
+| 节点 | 属性 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `CSGWedge3D` | `size` | `(2, 1, 2)` | 沿 +X 的长度（斜面朝 +X 升高）、高度、朝 -Z 的宽度。 |
+| `CSGArch3D` | `size` | `(3, 3, 0.5)` | 沿 +X 的宽度、高度、朝 -Z 的厚度。 |
+| | `opening_width` / `opening_height` | `1.6` / `2.4` | 门洞在宽度方向居中，高度量到拱顶。门洞高度不到宽度一半时用椭圆弧，否则是半圆。门洞距拱门边缘至少留 5 cm。 |
+| | `arc_segments` | `12` | 拱弧的段数。 |
+| `CSGCurvedWall3D` | `radius` / `thickness` / `height` | `3` / `0.25` / `3` | 绕节点 Y 轴的内半径，墙从这里向外长厚。 |
+| | `angle` / `sides` | `90` / `12` | 从 +X 转向 -Z 的扫掠角（360 闭合成圆环），分成多少段平面。 |
+| `CSGSpiralStairs3D` | `height` / `outer_radius` / `inner_radius` | `3` / `1.5` / `0.25` | 总高，以及台阶绕中间天井的外、内半径。 |
+| | `angle` / `step_count` | `360` / `16` | 一共转多少度（30 到 1440）、分几级（每圈至少 3 级）。 |
+| | `step_thickness` / `fill_to_floor` | `0.25` / `false` | 悬空台阶（厚度至少比一级的高度大，台阶才连得上；超过一圈时又不会碰到上一圈），或一直实心到地面（最多一圈）。 |
+| | `clockwise` / `enable_ergonomic_warning` | `false` / `true` | 俯视的上楼方向；在 Inspector 里提示踏步高度（0.15-0.20 m），以及上一圈下方净空低于角色身高。 |
 
 ---
 

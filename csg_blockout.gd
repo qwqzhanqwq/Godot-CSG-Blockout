@@ -40,6 +40,8 @@ func _get_shape_menu() -> Array[Dictionary]:
 	for entry: Array in [
 		["BOX", "CSGBox3D", "box.svg"], ["CYLINDER", "CSGCylinder3D", "cyliner.svg"],
 		["STAIRS", "CSGStairs3D", "stairs.svg"], ["SPHERE", "CSGSphere3D", "sphere.svg"],
+		["WEDGE", "CSGWedge3D", "wedge.svg"], ["SPIRAL_STAIRS", "CSGSpiralStairs3D", "spiral_stairs.svg"],
+		["ARCH", "CSGArch3D", "arch.svg"], ["CURVED_WALL", "CSGCurvedWall3D", "curved_wall.svg"],
 		["TORUS", "CSGTorus3D", "torus.svg"], ["POLYGON", "CSGPolygon3D", "polygon.svg"],
 		["MESH", "CSGMesh3D", "mesh.svg"]]:
 		shapes.append({"label": CsgBlockoutI18n.t(entry[0]), "type": "create_csg", "csg_type": entry[1], "icon": _icon(entry[2])})
@@ -87,6 +89,12 @@ func _enter_tree() -> void:
 	add_custom_type("CSGRepeater3D", "CSGCombiner3D", preload("res://addons/csg_blockout/scripts/csg_repeater_3d.gd"), null)
 	add_custom_type("CSGSpreader3D", "CSGCombiner3D", preload("res://addons/csg_blockout/scripts/csg_spreader_3d.gd"), null)
 	add_custom_type("CSGStairs3D", "CSGPolygon3D", preload("res://addons/csg_blockout/scripts/csg_stairs_3d.gd"), preload("res://addons/csg_blockout/res/icons/stairs.svg"))
+	# Icons loaded, not preloaded: right after an update they may not be imported yet,
+	# and a missing preload would stop the whole plugin from loading.
+	add_custom_type("CSGWedge3D", "CSGPolygon3D", preload("res://addons/csg_blockout/scripts/shapes/csg_wedge_3d.gd"), _icon("wedge.svg"))
+	add_custom_type("CSGArch3D", "CSGPolygon3D", preload("res://addons/csg_blockout/scripts/shapes/csg_arch_3d.gd"), _icon("arch.svg"))
+	add_custom_type("CSGCurvedWall3D", "CSGPolygon3D", preload("res://addons/csg_blockout/scripts/shapes/csg_curved_wall_3d.gd"), _icon("curved_wall.svg"))
+	add_custom_type("CSGSpiralStairs3D", "CSGMesh3D", preload("res://addons/csg_blockout/scripts/shapes/csg_spiral_stairs_3d.gd"), _icon("spiral_stairs.svg"))
 	add_custom_type("CSGRuler3D", "Node3D", preload("res://addons/csg_blockout/scripts/csg_ruler_3d.gd"), preload("res://addons/csg_blockout/res/icons/ruler.svg"))
 	add_custom_type("CSGPlayerReference3D", "Node3D", preload("res://addons/csg_blockout/scripts/metrics/csg_player_reference_3d.gd"), null)
 
@@ -426,6 +434,10 @@ func _exit_tree() -> void:
 	remove_custom_type("CSGRepeater3D")
 	remove_custom_type("CSGSpreader3D")
 	remove_custom_type("CSGStairs3D")
+	remove_custom_type("CSGWedge3D")
+	remove_custom_type("CSGArch3D")
+	remove_custom_type("CSGCurvedWall3D")
+	remove_custom_type("CSGSpiralStairs3D")
 	remove_custom_type("CSGRuler3D")
 	remove_custom_type("CSGPlayerReference3D")
 	undo_manager = null
