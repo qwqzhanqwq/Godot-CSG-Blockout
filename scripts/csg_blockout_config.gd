@@ -38,10 +38,12 @@ const SETTING_CAPSULE_RADIUS: String = "addons/csg_blockout/player_metrics/capsu
 const SETTING_CROUCH_HEIGHT: String = "addons/csg_blockout/player_metrics/crouch_height"
 const SETTING_MAX_SLOPE: String = "addons/csg_blockout/player_metrics/max_slope_angle"
 const SETTING_WALK_SPEED: String = "addons/csg_blockout/player_metrics/walk_speed"
+const SETTING_MAX_STEP_HEIGHT: String = "addons/csg_blockout/player_metrics/max_step_height"
 const DEFAULT_CAPSULE_RADIUS: float = 0.35
 const DEFAULT_CROUCH_HEIGHT: float = 1.0
 const DEFAULT_MAX_SLOPE: float = 45.0
 const DEFAULT_WALK_SPEED: float = 3.5
+const DEFAULT_MAX_STEP_HEIGHT: float = 0.3
 const SETTING_STRIP_SOURCE_ON_EXPORT: String = "addons/csg_blockout/bake/strip_source_on_export"
 const DEFAULT_STRIP_SOURCE_ON_EXPORT: bool = true
 const DEFAULT_ROOM_WALL_THICKNESS: float = 0.25
@@ -217,7 +219,8 @@ func _ensure_settings_exist() -> void:
 	_register(SETTING_CROUCH_HEIGHT, DEFAULT_CROUCH_HEIGHT, TYPE_FLOAT, PROPERTY_HINT_RANGE, "0.1,5.0,0.05,or_greater")
 	_register(SETTING_MAX_SLOPE, DEFAULT_MAX_SLOPE, TYPE_FLOAT, PROPERTY_HINT_RANGE, "1.0,89.0,0.5")
 	_register(SETTING_WALK_SPEED, DEFAULT_WALK_SPEED, TYPE_FLOAT, PROPERTY_HINT_RANGE, "0.1,50.0,0.1,or_greater")
-	for path: String in [SETTING_CAPSULE_RADIUS, SETTING_CROUCH_HEIGHT, SETTING_MAX_SLOPE, SETTING_WALK_SPEED]:
+	_register(SETTING_MAX_STEP_HEIGHT, DEFAULT_MAX_STEP_HEIGHT, TYPE_FLOAT, PROPERTY_HINT_RANGE, "0.01,2.0,0.01,or_greater")
+	for path: String in [SETTING_CAPSULE_RADIUS, SETTING_CROUCH_HEIGHT, SETTING_MAX_SLOPE, SETTING_WALK_SPEED, SETTING_MAX_STEP_HEIGHT]:
 		ProjectSettings.set_as_basic(path, true)
 
 	if not ProjectSettings.settings_changed.is_connected(_on_project_settings_changed):
@@ -286,6 +289,10 @@ func get_max_slope_angle() -> float:
 func get_walk_speed() -> float:
 	return get_positive_float(SETTING_WALK_SPEED, DEFAULT_WALK_SPEED)
 
+## Highest step the test character walks up without jumping.
+func get_max_step_height() -> float:
+	return get_positive_float(SETTING_MAX_STEP_HEIGHT, DEFAULT_MAX_STEP_HEIGHT)
+
 ## Every player metric in one dictionary (shared by rulers, the player reference,
 ## the validator and the Play From Here pawn).
 func get_player_metrics() -> Dictionary:
@@ -297,6 +304,7 @@ func get_player_metrics() -> Dictionary:
 		"sprint_jump_distance": get_sprint_jump_distance(),
 		"max_slope_angle": get_max_slope_angle(),
 		"walk_speed": get_walk_speed(),
+		"max_step_height": get_max_step_height(),
 	}
 
 func get_strip_source_on_export() -> bool:

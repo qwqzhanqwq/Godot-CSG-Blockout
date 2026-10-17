@@ -157,6 +157,7 @@ graph TD
 2. 用 `EditorInterface.play_custom_scene()` 启动插件自带的启动场景（遵循"运行前保存"设置）。
 3. 启动场景（`scripts/runtime/`）把请求的场景加载为当前场景；没开 `use_collision` 的可见 CSG 根节点临时打开，没有碰撞体的冻结白盒临时补一个三角网格碰撞（只影响这一次运行，编辑器在状态行报告补了几块）；场景里没有太阳和天空时补一个；再生成 `CSGBlockoutTestPawn`。
 4. 测试小人是一个直接读物理按键的 `CharacterBody3D`，所以项目的输入映射和自动加载都不受影响。它的数值全部来自角色参数：跳跃初速 `v = √(2·g·h)` 由 `single_jump_height` 推出；冲刺速度 = `sprint_jump_distance` ÷ 滞空时间（`2v / g`）；行走速度不超过冲刺速度；走不上比 `max_slope_angle` 更陡的坡；蹲下后起身前会检查头顶空间。
+5. 台阶：胶囊体碰到台阶边缘时，接触面的坡度陡到不算地面，所以单靠 `move_and_slide()` 既上不了楼梯，下楼也贴不住台阶。在地面上，一次移动撞到太陡的东西时，测试小人在接触点稍往前的地方向下打一条射线；如果下面是能站的台阶面，且不高于 `max_step_height`，就把它抬上去、在那个高度完成这次移动（`_step_up()`，按行走速度每级要几帧，镜头缓动跟上）。走下某个东西之后，只要身体中心正下方 `max_step_height` 以内有能站的面，就让它落在边缘或台阶面上，仍算站在地上（`_follow_ground()`）。这两步在空中都不生效，所以跳跃的最高点正好是 `single_jump_height`。
 
 ---
 
@@ -264,7 +265,7 @@ graph TD
 
 ### CSGPlayerReference3D
 
-只在编辑器里存在（游戏运行时与导出时会被移除）。gizmo 画出胶囊体、蹲伏与视线高度、跳跃能够到的最高台面、冲刺跳跃弧线（前方为 -Z）和最大可行走坡度。
+只在编辑器里存在（游戏运行时与导出时会被移除）。gizmo 画出胶囊体、蹲伏与视线高度、跳跃能够到的最高台面、冲刺跳跃弧线（前方为 -Z）、最大可行走坡度，以及不用跳就能迈上的最高台阶。
 
 | 属性 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -329,6 +330,7 @@ graph TD
 | `player_metrics/crouch_height` | `float` | `1.0` | 蹲伏高度（米）。 |
 | `player_metrics/max_slope_angle` | `float` | `45.0` | 最大可行走坡度（度）。 |
 | `player_metrics/walk_speed` | `float` | `3.5` | 测试小人的行走速度（米/秒，不超过冲刺速度）。 |
+| `player_metrics/max_step_height` | `float` | `0.3` | 测试小人不用跳就能迈上（和走下）的最高台阶。楼梯和螺旋楼梯的台阶比它高时会提示。 |
 | `room/wall_thickness` | `float` | `0.25` | 绘制房间的墙厚（米）。 |
 | `room/floor_thickness` | `float` | `0.25` | 绘制房间的地板厚度（米）。 |
 | `room/open_top` | `bool` | `true` | 绘制的房间不带顶。 |

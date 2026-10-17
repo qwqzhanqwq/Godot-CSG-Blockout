@@ -1,8 +1,9 @@
 @tool
 class_name CSGPlayerReference3D extends Node3D
 ## Player scale reference for blockout: shows the character capsule, crouch and eye
-## height, the height you can jump onto, the sprint-jump arc (forward = -Z) and the
-## steepest walkable slope. Uses the project's player metrics unless overridden.
+## height, the height you can jump onto, the sprint-jump arc (forward = -Z), the
+## steepest walkable slope and the highest step it walks up. Uses the project's player
+## metrics unless overridden.
 ## Editor-only: removed when the game runs.
 
 const GROUP: StringName = &"csg_player_refs"
@@ -83,4 +84,5 @@ func metrics() -> Dictionary:
 		"sprint_jump_distance": sprint_jump_distance,
 		"max_slope_angle": max_slope_angle,
 		"walk_speed": CsgBlockoutConfig.get_config().get_walk_speed(),
+		"max_step_height": CsgBlockoutConfig.get_config().get_max_step_height(),
 	}

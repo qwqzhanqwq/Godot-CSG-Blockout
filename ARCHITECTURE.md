@@ -157,6 +157,7 @@ Tools need exact hits on CSG, which has no physics bodies in the editor. `CsgBlo
 2. It starts the plugin's launcher scene with `EditorInterface.play_custom_scene()` (respecting "Save Before Running").
 3. The launcher (`scripts/runtime/`) loads the requested scene as the current scene, turns on `use_collision` for visible CSG roots without it and gives frozen blockout without a collision body a trimesh one (for this run only; the editor reports how many on the status line), adds a sun and a procedural sky if the scene has none, and spawns `CSGBlockoutTestPawn`.
 4. The pawn is a `CharacterBody3D` that reads physical keys directly, so the project's input map and autoloads are untouched. Its numbers come from the player metrics: jump velocity `v = √(2·g·h)` from `single_jump_height`; sprint speed = `sprint_jump_distance` ÷ airtime (`2v / g`); walk speed is capped at the sprint speed; it can't walk up slopes steeper than `max_slope_angle` and checks for headroom before standing up.
+5. Steps: a capsule touches a step's edge at a slope too steep to count as floor, so `move_and_slide()` alone neither climbs stairs nor stays on them going down. On the ground, when a move runs into something too steep, the pawn casts a ray just past the contact; a walkable tread no higher than `max_step_height` means it is lifted onto it and makes the move there (`_step_up()`, a few frames per step at walking speed, with the camera eased up). After walking off something, a walkable surface at most `max_step_height` below its center keeps it on the ground, settled onto the edge or tread (`_follow_ground()`). Neither runs in the air, so a jump peaks exactly at `single_jump_height`.
 
 ---
 
@@ -264,7 +265,7 @@ A `CSGPolygon3D` whose profile is generated from the properties below: the steps
 
 ### CSGPlayerReference3D
 
-Editor-only (removed when the game runs and on export). The gizmo draws the capsule, crouch and eye height, the highest ledge a jump reaches, the sprint-jump arc (forward is -Z) and the steepest walkable slope.
+Editor-only (removed when the game runs and on export). The gizmo draws the capsule, crouch and eye height, the highest ledge a jump reaches, the sprint-jump arc (forward is -Z), the steepest walkable slope and the highest step it walks up.
 
 | Property | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
@@ -329,6 +330,7 @@ The tools don't know these classes by name. They talk to them through the **shap
 | `player_metrics/crouch_height` | `float` | `1.0` | Crouching height (m). |
 | `player_metrics/max_slope_angle` | `float` | `45.0` | Steepest walkable slope (degrees). |
 | `player_metrics/walk_speed` | `float` | `3.5` | Test character walk speed (m/s, capped at the sprint speed). |
+| `player_metrics/max_step_height` | `float` | `0.3` | Highest step the test character walks up (and down) without jumping. Stairs and spiral stairs warn when their steps are higher. |
 | `room/wall_thickness` | `float` | `0.25` | Wall thickness of drawn rooms (m). |
 | `room/floor_thickness` | `float` | `0.25` | Floor thickness of drawn rooms (m). |
 | `room/open_top` | `bool` | `true` | Drawn rooms have no ceiling. |

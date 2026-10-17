@@ -95,11 +95,11 @@ Every tool does one thing and hands control back, and the card at the top of the
 
 ### Measure and test
 - **Dimension labels** for selected shapes, in meters.
-- **Player reference** (`CSGPlayerReference3D`): capsule, crouch and eye height, the height you can jump onto, the sprint-jump arc and the steepest walkable slope. Editor-only.
+- **Player reference** (`CSGPlayerReference3D`): capsule, crouch and eye height, the height you can jump onto, the sprint-jump arc, the steepest walkable slope and the highest step it walks up. Editor-only.
 - **Level check**: flags walkable slopes that are too steep and ceilings below standing or crouch height, highlighted in the viewport and listed in the outliner's Checks tab.
 - **Jump check and ruler**: select two objects to see whether the gap is jumpable, or drag a ruler between any two points.
 - **Semantic tags**: mark shapes as wall, floor, hazard or interactive. They get color-coded grid materials and metadata your game can read, and you can export an SVG legend for design docs.
-- **Play From Here**: run the scene with a first-person test character (WASD, jump, sprint, crouch) at the viewport center or the cursor. Blockout without collision gets it for the run, so you never fall through. No input map changes, no autoloads.
+- **Play From Here**: run the scene with a first-person test character (WASD, jump, sprint, crouch) at the viewport center or the cursor. It walks up and down stairs as high as `max_step_height`, the number the stairs warn with. Blockout without collision gets it for the run, so you never fall through. No input map changes, no autoloads.
 
 ### Organize
 - **Blockout outliner** (dock tab): only CSG trees and frozen blockout, with operation icons, show/hide, solo, lock, filter, group/ungroup, and semantic names like `Wall_Corridor_01`.

@@ -162,6 +162,12 @@ func _get_configuration_warnings() -> PackedStringArray:
 		return warnings
 	var current_step_height: float = _total_height / float(maxi(1, _step_count))
 	var current_step_depth: float = _total_depth / float(maxi(1, _step_count))
+	var max_step: float = max_step_height()
+	if current_step_height > max_step + 0.0001:
+		warnings.append(
+			"Each step is %.2f m high, more than the test character walks up (max_step_height %.2f m): in Play From Here it has to jump them."
+			% [current_step_height, max_step]
+		)
 	if current_step_height < ERGO_STEP_HEIGHT_MIN or current_step_height > ERGO_STEP_HEIGHT_MAX:
 		var suggested_by_height: int = maxi(1, roundi(_total_height / ERGO_STEP_HEIGHT_TARGET))
 		warnings.append(
@@ -181,6 +187,10 @@ func _get_configuration_warnings() -> PackedStringArray:
 @warning_ignore("native_method_override")
 func _is_editable_3d_polygon() -> bool:
 	return false
+
+## The player metric max_step_height (Project Settings), read without the editor.
+static func max_step_height() -> float:
+	return float(ProjectSettings.get_setting(CsgBlockoutConfig.SETTING_MAX_STEP_HEIGHT, CsgBlockoutConfig.DEFAULT_MAX_STEP_HEIGHT))
 
 func _validate_property(property: Dictionary) -> void:
 	var prop_name: StringName = property["name"]

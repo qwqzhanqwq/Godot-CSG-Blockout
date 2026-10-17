@@ -10,12 +10,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Their faces have arrows like boxes: wedge and arch faces change their size, the arch also has arrows for the height and width of its opening, a curved wall's arrows change its height, thickness, inner radius and how far it sweeps, and the spiral stairs' arrows change the height, the radii and how far they turn. Their dimension labels take typed sizes (only the height for the curved wall and spiral stairs).
 - Spiral stairs warn in the Inspector when a step's rise is uncomfortable, and when the turn above leaves less headroom than the character height in the player metrics.
 - Freezing with **one native shape per primitive** collision gives the new shapes convex pieces that follow them (the arch's opening stays open, every spiral step gets its own piece) instead of one hull.
+- **The Play From Here test character walks up stairs.** A new player metric, `max_step_height` (0.3 m by default), is the highest step it walks up without jumping; stairs and spiral stairs warn in the Inspector when their steps are higher, and the player reference draws it. It only steps on the ground, so jumps still peak exactly at `single_jump_height`.
 - Without the plugin, the wedge, arch and curved wall stay plain `CSGPolygon3D` nodes with the same shape, and the spiral stairs a `CSGMesh3D` whose mesh is saved with the scene.
 
 ### Changed
 - The duplicate-along-an-axis preview shows stairs and other extruded or turned `CSGPolygon3D` shapes with their real outline instead of their bounding box.
 
 ### Fixed
+- The Play From Here test character stopped at the first step of any stairs and hopped down them, airborne most of the way: its capsule touched each step's edge at a slope too steep to count as floor. It now walks up and down steps as high as `max_step_height` and stays on the ground.
 - Selecting stairs no longer opens Godot's polygon point editor on them: their profile comes from their own properties, so points moved there were overwritten by the next change. The same goes for the new wedge, arch and curved wall.
 
 ## [3.0.0] - 2026-10-03

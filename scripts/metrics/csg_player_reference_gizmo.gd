@@ -1,7 +1,8 @@
 @tool
 class_name CSGPlayerReferenceGizmoPlugin extends EditorNode3DGizmoPlugin
 ## Draws CSGPlayerReference3D: capsule (cyan), crouch height (blue), eye height,
-## jump-onto height ring and sprint-jump arc (green), max walkable slope (orange).
+## jump-onto height ring and sprint-jump arc (green), max walkable slope and the
+## highest step walked up without jumping (orange).
 
 const SEGMENTS: int = 32
 const ARC_STEPS: int = 24
@@ -75,6 +76,13 @@ func _redraw(gizmo: EditorNode3DGizmo) -> void:
 		var a1: Vector3 = Vector3(x, 0, -SLOPE_LENGTH)
 		var a2: Vector3 = Vector3(x, rise, -SLOPE_LENGTH)
 		slope.append_array(PackedVector3Array([a0, a1, a1, a2, a2, a0]))
+		# The highest step, on the other side: floor, riser, tread.
+		var step: float = m.get("max_step_height", 0.3)
+		var s0: Vector3 = Vector3(-x, 0, 0)
+		var s1: Vector3 = Vector3(-x, 0, -0.4)
+		var s2: Vector3 = Vector3(-x, step, -0.4)
+		var s3: Vector3 = Vector3(-x, step, -0.8)
+		slope.append_array(PackedVector3Array([s0, s1, s1, s2, s2, s3]))
 		gizmo.add_lines(slope, get_material(&"slope", gizmo))
 
 static func _ring(out: PackedVector3Array, y: float, radius: float) -> void:

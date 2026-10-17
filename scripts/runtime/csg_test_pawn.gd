@@ -5,11 +5,16 @@ extends CharacterBody3D
 ## jumps, Shift sprints, Ctrl crouches, R respawns, Esc frees the mouse.
 ## Its numbers come from the player metrics: the jump reaches single_jump_height and
 ## a sprint jump on flat ground covers sprint_jump_distance, the same values the
-## level ruler and checks use. Runtime script: must not reference editor classes.
+## level ruler and checks use. On the ground it walks up steps as high as
+## max_step_height (stairs warn when theirs are higher); in the air it doesn't, so jumps
+## stay exactly as high as the ruler says. Runtime script: must not reference editor
+## classes.
 
 const MOUSE_SENSITIVITY: float = 0.0025
 const EYE_OFFSET: float = 0.12
 const ACCELERATION: float = 40.0
+## How fast (m/s) the view catches up after a step, so climbing doesn't jolt it.
+const STEP_CAMERA_SPEED: float = 2.5
 
 var metrics: Dictionary = {}
 var spawn: Transform3D = Transform3D.IDENTITY
@@ -28,6 +33,11 @@ var _sprint_speed: float = 7.0
 var _jump_velocity: float = 5.0
 var _height: float = 1.8
 var _crouch_height: float = 1.0
+var _step_height: float = 0.3
+## How far the camera still trails below the eye after the last steps.
+var _camera_drop: float = 0.0
+## Held on a step's edge or tread by _follow_ground (counts as standing).
+var _supported: bool = false
 var _crouched: bool = false
 var _pitch: float = 0.0
 
@@ -48,7 +58,9 @@ func setup(p_metrics: Dictionary, p_spawn: Transform3D) -> void:
 	# Walking never outruns sprinting, so no jump exceeds sprint_jump_distance.
 	_walk_speed = minf(_walk_speed, _sprint_speed)
 	floor_max_angle = deg_to_rad(float(metrics.get("max_slope_angle", 45.0)))
-	floor_snap_length = 0.3
+	_step_height = maxf(float(metrics.get("max_step_height", 0.3)), 0.0)
+	# Stays on the ground walking down anything it can walk up.
+	floor_snap_length = maxf(_step_height + 0.05, 0.1)
 
 	_capsule = CapsuleShape3D.new()
 	_capsule.radius = radius
@@ -82,6 +94,7 @@ func _ready() -> void:
 func respawn() -> void:
 	global_transform = spawn
 	velocity = Vector3.ZERO
+	_supported = false
 	_pitch = 0.0
 	_camera.rotation.x = 0.0
 
@@ -102,7 +115,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _physics_process(delta: float) -> void:
 	_update_crouch()
-	if not is_on_floor():
+	var grounded: bool = is_on_floor() or _supported
+	if not grounded:
 		velocity.y -= _gravity * delta
 	elif Input.is_physical_key_pressed(KEY_SPACE) and not _crouched:
 		velocity.y = _jump_velocity
@@ -124,10 +138,16 @@ func _physics_process(delta: float) -> void:
 	elif _crouched:
 		speed = _walk_speed * 0.5
 	var target: Vector3 = dir * speed
-	var accel: float = ACCELERATION if is_on_floor() else ACCELERATION * 0.25
+	var accel: float = ACCELERATION if grounded else ACCELERATION * 0.25
 	velocity.x = move_toward(velocity.x, target.x, accel * delta)
 	velocity.z = move_toward(velocity.z, target.z, accel * delta)
-	move_and_slide()
+	if _step_up(delta, grounded):
+		_supported = true
+	else:
+		move_and_slide()
+		_supported = _follow_ground(grounded)
+	_camera_drop = move_toward(_camera_drop, 0.0, STEP_CAMERA_SPEED * delta)
+	_place_camera()
 	if global_position.y < spawn.origin.y - 100.0:
 		respawn()
 	_update_hud()
@@ -142,7 +162,74 @@ func _update_crouch() -> void:
 	var h: float = _crouch_height if _crouched else _height
 	_capsule.height = maxf(h, _capsule.radius * 2.0)
 	_shape.position.y = _capsule.height * 0.5
-	_camera.position.y = h - EYE_OFFSET
+	_place_camera()
+
+func _place_camera() -> void:
+	var h: float = _crouch_height if _crouched else _height
+	_camera.position.y = h - EYE_OFFSET - _camera_drop
+
+## Walks up a step: on the ground, when this frame's move runs into something too
+## steep to walk on, looks for a walkable tread just past the contact no higher than
+## max_step_height, lifts the pawn onto it and makes the move there. A capsule rests
+## on a step's edge first, so climbing one takes a few frames at walking speed.
+## Returns true when it moved the pawn (instead of move_and_slide).
+func _step_up(delta: float, grounded: bool) -> bool:
+	if _step_height <= 0.0 or not grounded or velocity.y > 0.0:
+		return false
+	var motion: Vector3 = Vector3(velocity.x, 0.0, velocity.z) * delta
+	if motion.length() < 0.0001:
+		return false
+	var from: Transform3D = global_transform
+	var blocked: KinematicCollision3D = KinematicCollision3D.new()
+	if not test_move(from, motion, blocked) or blocked.get_normal().angle_to(Vector3.UP) <= floor_max_angle:
+		return false
+	var probe: Vector3 = blocked.get_position() + motion.normalized() * 0.05
+	var tread: Dictionary = _walkable_hit(Vector3(probe.x, from.origin.y + _step_height + 0.05, probe.z), Vector3(probe.x, from.origin.y, probe.z))
+	if tread.is_empty():
+		return false
+	var rise: float = (tread["position"] as Vector3).y - from.origin.y
+	if rise <= 0.001 or rise > _step_height:
+		return false
+	var lift: Vector3 = Vector3.UP * (rise + 0.01)
+	if test_move(from, lift):
+		return false
+	var raised: Transform3D = from.translated(lift)
+	if test_move(raised, motion):
+		return false
+	var ahead: Transform3D = raised.translated(motion)
+	var landing: KinematicCollision3D = KinematicCollision3D.new()
+	if not test_move(ahead, -lift, landing):
+		return false
+	var landed: Vector3 = ahead.origin + landing.get_travel()
+	_camera_drop = minf(_camera_drop + landed.y - from.origin.y, _step_height)
+	global_position = landed
+	return true
+
+## Walks down steps on the ground: rounding a step's edge, the capsule touches it at a
+## slope too steep to count as floor, so Godot's floor snap lets go and the pawn would
+## hop down every step. After walking (not jumping) off something, when a walkable
+## surface lies at most max_step_height below its center, settles it down onto the
+## edge or tread instead. Returns true when it holds the pawn that way.
+func _follow_ground(was_grounded: bool) -> bool:
+	if is_on_floor() or not was_grounded or velocity.y > 0.0 or _step_height <= 0.0:
+		return false
+	var feet: Vector3 = global_position
+	if _walkable_hit(feet + Vector3.UP * 0.05, feet + Vector3.DOWN * (_step_height + 0.05)).is_empty():
+		return false
+	var settle: KinematicCollision3D = KinematicCollision3D.new()
+	if not test_move(global_transform, Vector3.DOWN * (_step_height + 0.05), settle):
+		return false
+	global_position += settle.get_travel()
+	velocity.y = 0.0
+	return true
+
+## Ray hit on a surface the pawn can stand on, or {}.
+func _walkable_hit(from: Vector3, to: Vector3) -> Dictionary:
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(from, to, collision_mask, [get_rid()])
+	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty() or (hit["normal"] as Vector3).angle_to(Vector3.UP) > floor_max_angle:
+		return {}
+	return hit
 
 ## True when nothing blocks standing up from a crouch.
 func _can_stand() -> bool:

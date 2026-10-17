@@ -352,6 +352,9 @@ func _get_configuration_warnings() -> PackedStringArray:
 	if rise < CSGStairs3D.ERGO_STEP_HEIGHT_MIN or rise > CSGStairs3D.ERGO_STEP_HEIGHT_MAX:
 		warnings.append("Step height %.2f m is outside the ergonomic range 0.15-0.20 m. For height %.2f m, try step_count = %d."
 			% [rise, _height, maxi(2, roundi(_height / CSGStairs3D.ERGO_STEP_HEIGHT_TARGET))])
+	var max_step: float = CSGStairs3D.max_step_height()
+	if rise > max_step + 0.0001:
+		warnings.append("Each step is %.2f m high, more than the test character walks up (max_step_height %.2f m): in Play From Here it has to jump them." % [rise, max_step])
 	var character: float = float(ProjectSettings.get_setting(CsgBlockoutConfig.SETTING_CHARACTER_HEIGHT, CsgBlockoutConfig.DEFAULT_CHARACTER_HEIGHT))
 	var clear: float = headroom()
 	if clear < character:
